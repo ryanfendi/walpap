@@ -1,933 +1,1247 @@
+/* =========================================================
+   WALPAP V3
+   Premium Digital Wallpaper Marketplace
+========================================================= */
+
 const wallpapers = [
-    {
-        id: "w1",
-        name: "Neon Samurai",
-        creator: "KAIRO",
-        rarity: "legendary",
-        price: 10000,
-        edition: "#027 / 100",
-        image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=90"
-    },
+  {
+    id: "w1",
+    title: "Neon Tokyo",
+    creator: "CyberNeko",
+    rarity: "legendary",
+    price: 10000,
+    edition: "#027 / 100",
+    image:
+      "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=90"
+  },
 
-    {
-        id: "w2",
-        name: "Cosmic Void",
-        creator: "NOVA",
-        rarity: "epic",
-        price: 7000,
-        edition: "#241 / 1000",
-        image: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=900&q=90"
-    },
+  {
+    id: "w2",
+    title: "Purple Galaxy",
+    creator: "NovaX",
+    rarity: "epic",
+    price: 7500,
+    edition: "#184 / 1000",
+    image:
+      "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=900&q=90"
+  },
 
-    {
-        id: "w3",
-        name: "Purple Dream",
-        creator: "ELLA",
-        rarity: "rare",
-        price: 3000,
-        edition: "#2188 / 10000",
-        image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=90"
-    },
+  {
+    id: "w3",
+    title: "Cyber City",
+    creator: "PixelForge",
+    rarity: "rare",
+    price: 5000,
+    edition: "#4921 / 10000",
+    image:
+      "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=90"
+  },
 
-    {
-        id: "w4",
-        name: "Dark Mountain",
-        creator: "ZERO",
-        rarity: "mythic",
-        price: 25000,
-        edition: "#07 / 10",
-        image: "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=90"
-    },
+  {
+    id: "w4",
+    title: "Dark Mountain",
+    creator: "VoidStudio",
+    rarity: "mythic",
+    price: 25000,
+    edition: "#03 / 10",
+    image:
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=90"
+  },
 
-    {
-        id: "w5",
-        name: "Blue Horizon",
-        creator: "WALPAP",
-        rarity: "common",
-        price: 0,
-        edition: "UNLIMITED",
-        image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=90"
-    },
+  {
+    id: "w5",
+    title: "Ocean Dream",
+    creator: "BlueWave",
+    rarity: "rare",
+    price: 4500,
+    edition: "#3280 / 10000",
+    image:
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=90"
+  },
 
-    {
-        id: "w6",
-        name: "Cyber City",
-        creator: "NEON",
-        rarity: "epic",
-        price: 8500,
-        edition: "#501 / 1000",
-        image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=90"
-    }
+  {
+    id: "w6",
+    title: "Golden Future",
+    creator: "LuxArt",
+    rarity: "legendary",
+    price: 15000,
+    edition: "#041 / 100",
+    image:
+      "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=90"
+  }
 ];
 
 
+/* =========================================================
+   STORAGE
+========================================================= */
+
 let balance =
-    Number(localStorage.getItem("walpap_balance"))
-    || 50000;
+  Number(localStorage.getItem("walpap_balance"));
+
+if (!balance) {
+  balance = 50000;
+  saveBalance();
+}
 
 let owned =
-    JSON.parse(
-        localStorage.getItem("walpap_owned")
-        || "[]"
-    );
+  JSON.parse(
+    localStorage.getItem("walpap_owned") || "[]"
+  );
 
 let favorites =
-    JSON.parse(
-        localStorage.getItem("walpap_favorites")
-        || "[]"
-    );
+  JSON.parse(
+    localStorage.getItem("walpap_favorites") || "[]"
+  );
+
+
+/* =========================================================
+   STATE
+========================================================= */
 
 let currentWallpaper = null;
+
 let currentFilter = "all";
 
 
-/* INIT */
+/* =========================================================
+   INIT
+========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    updateBalance();
+  renderBalance();
 
-    renderWallpapers(wallpapers, "wallpaperGrid");
+  renderWallpapers();
 
-    renderWallpapers(wallpapers, "exploreGrid");
+  renderVault();
 
-    renderCollection();
+  updateWalletStats();
 
 });
 
 
-/* PAGE */
-
-function showPage(pageId, button) {
-
-    document.querySelectorAll(".page")
-        .forEach(page => {
-            page.classList.remove("active");
-        });
-
-    const page =
-        document.getElementById(pageId);
-
-    if (page) {
-        page.classList.add("active");
-    }
-
-    document.querySelectorAll(".nav-item")
-        .forEach(item => {
-            item.classList.remove("active");
-        });
-
-    if (button) {
-        button.classList.add("active");
-    }
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-}
-
-
-/* EXPLORE */
-
-function openExplore() {
-
-    showPage("explorePage");
-
-    renderWallpapers(
-        wallpapers,
-        "exploreGrid"
-    );
-}
-
-
-/* COLLECTION */
-
-function openCollection() {
-
-    showPage("collectionPage");
-
-    renderCollection();
-}
-
-
-/* HOME SCROLL */
-
-function scrollToDrops() {
-
-    document.getElementById("drops")
-        ?.scrollIntoView({
-            behavior: "smooth"
-        });
-
-}
-
-
-/* RENDER */
-
-function renderWallpapers(list, elementId) {
-
-    const container =
-        document.getElementById(elementId);
-
-    if (!container) return;
-
-    if (!list.length) {
-
-        container.innerHTML = `
-            <div class="empty-collection">
-                Tidak ada wallpaper ditemukan.
-            </div>
-        `;
-
-        return;
-    }
-
-    container.innerHTML =
-        list.map(w => createCard(w))
-        .join("");
-
-}
-
-
-/* CARD */
-
-function createCard(w) {
-
-    const isFavorite =
-        favorites.includes(w.id);
-
-    const price =
-        w.price === 0
-        ? "FREE"
-        : formatRupiah(w.price);
-
-    return `
-        <article
-            class="wallpaper-card"
-            onclick="openDetail('${w.id}')">
-
-            <div class="wallpaper-image">
-
-                <img
-                    src="${w.image}"
-                    alt="${escapeHTML(w.name)}"
-                    loading="lazy">
-
-                <div class="card-gradient"></div>
-
-                <div class="rarity">
-                    ${w.rarity.toUpperCase()}
-                </div>
-
-                <button
-                    class="favorite ${isFavorite ? "active" : ""}"
-                    onclick="event.stopPropagation();
-                    toggleFavorite('${w.id}')">
-
-                    ${isFavorite ? "♥" : "♡"}
-
-                </button>
-
-            </div>
-
-            <div class="card-info">
-
-                <h3>
-                    ${escapeHTML(w.name)}
-                </h3>
-
-                <p>
-                    ${escapeHTML(w.creator)}
-                </p>
-
-                <div class="card-bottom">
-
-                    <span class="price">
-                        ${price}
-                    </span>
-
-                    <span class="edition">
-                        ${w.edition}
-                    </span>
-
-                </div>
-
-            </div>
-
-        </article>
-    `;
-}
-
-
-/* DETAIL */
-
-function openDetail(id) {
-
-    const wallpaper =
-        wallpapers.find(w => w.id === id);
-
-    if (!wallpaper) return;
-
-    currentWallpaper = wallpaper;
-
-    document.getElementById("detailImage")
-        .style.backgroundImage =
-        `url("${wallpaper.image}")`;
-
-    document.getElementById("detailName")
-        .textContent = wallpaper.name;
-
-    document.getElementById("detailCreator")
-        .textContent =
-        "CREATOR • " + wallpaper.creator;
-
-    document.getElementById("detailEdition")
-        .textContent = wallpaper.edition;
-
-    document.getElementById("detailRarity")
-        .textContent =
-        wallpaper.rarity.toUpperCase();
-
-    document.getElementById("detailRarityText")
-        .textContent =
-        wallpaper.rarity.toUpperCase();
-
-    document.getElementById("detailPrice")
-        .textContent =
-        wallpaper.price === 0
-        ? "FREE"
-        : formatRupiah(wallpaper.price);
-
-    const buyButton =
-        document.getElementById("buyButton");
-
-    if (owned.includes(wallpaper.id)) {
-
-        buyButton.textContent =
-            "OWNED";
-
-        buyButton.disabled = true;
-
-    } else {
-
-        buyButton.textContent =
-            wallpaper.price === 0
-            ? "COLLECT"
-            : "BUY NOW";
-
-        buyButton.disabled = false;
-    }
-
-    document.getElementById("detailModal")
-        .classList.add("open");
-}
-
-
-/* BUY */
-
-function buyCurrentWallpaper() {
-
-    if (!currentWallpaper) return;
-
-    const w = currentWallpaper;
-
-    if (owned.includes(w.id)) {
-
-        showToast("Wallpaper sudah dimiliki.");
-
-        return;
-    }
-
-
-    if (w.price === 0) {
-
-        owned.push(w.id);
-
-        saveOwned();
-
-        renderCollection();
-
-        showToast(
-            "✓ Wallpaper masuk ke Collection"
-        );
-
-        return;
-    }
-
-
-    if (balance < w.price) {
-
-        showToast(
-            "Saldo tidak cukup. Top up Wallet."
-        );
-
-        openWallet();
-
-        return;
-    }
-
-
-    balance -= w.price;
-
-    owned.push(w.id);
-
-    saveOwned();
-
-    saveBalance();
-
-    updateBalance();
-
-    renderCollection();
-
-    document.getElementById("buyButton")
-        .textContent = "OWNED";
-
-    document.getElementById("buyButton")
-        .disabled = true;
-
-    showToast(
-        "✓ Berhasil membeli " + w.name
-    );
-
-}
-
-
-/* FAVORITE */
-
-function toggleFavorite(id) {
-
-    if (favorites.includes(id)) {
-
-        favorites =
-            favorites.filter(x => x !== id);
-
-    } else {
-
-        favorites.push(id);
-
-    }
-
-    localStorage.setItem(
-        "walpap_favorites",
-        JSON.stringify(favorites)
-    );
-
-    renderWallpapers(
-        wallpapers,
-        "wallpaperGrid"
-    );
-
-    renderWallpapers(
-        getFiltered(),
-        "exploreGrid"
-    );
-
-    renderCollection();
-
-}
-
-
-/* FILTER */
-
-function filterCategory(category) {
-
-    currentFilter = category;
-
-    const filtered =
-        category === "all"
-        ? wallpapers
-        : wallpapers.filter(
-            w => w.rarity === category
-        );
-
-    renderWallpapers(
-        filtered,
-        "wallpaperGrid"
-    );
-
-    renderWallpapers(
-        filtered,
-        "exploreGrid"
-    );
-
-    showPage("explorePage");
-
-}
-
-
-function getFiltered() {
-
-    if (currentFilter === "all") {
-        return wallpapers;
-    }
-
-    return wallpapers.filter(
-        w => w.rarity === currentFilter
-    );
-
-}
-
-
-/* COLLECTION */
-
-function renderCollection() {
-
-    const grid =
-        document.getElementById("collectionGrid");
-
-    const preview =
-        document.getElementById("collectionPreview");
-
-    const ownedWallpapers =
-        wallpapers.filter(
-            w => owned.includes(w.id)
-        );
-
-
-    if (grid) {
-
-        grid.innerHTML =
-            ownedWallpapers.length
-            ? ownedWallpapers
-                .map(w => createCard(w))
-                .join("")
-            : `
-                <div class="empty-collection">
-                    Koleksimu masih kosong.<br>
-                    Mulai koleksi wallpaper pertamamu.
-                </div>
-            `;
-
-    }
-
-
-    if (preview) {
-
-        preview.innerHTML =
-            ownedWallpapers.length
-            ? ownedWallpapers
-                .slice(0, 5)
-                .map(w => `
-                    <div class="collection-mini"
-                         onclick="openDetail('${w.id}')">
-
-                        <img src="${w.image}"
-                             alt="${w.name}">
-
-                    </div>
-                `)
-                .join("")
-            : `
-                <div class="empty-collection">
-                    Your Vault is empty
-                </div>
-            `;
-
-    }
-
-
-    const count =
-        document.getElementById("ownedCount");
-
-    const favCount =
-        document.getElementById("favoriteCount");
-
-    if (count) {
-        count.textContent =
-            ownedWallpapers.length;
-    }
-
-    if (favCount) {
-        favCount.textContent =
-            favorites.length;
-    }
-
-}
-
-
-/* WALLET */
-
-function openWallet() {
-
-    document.getElementById("walletBig")
-        .textContent =
-        formatRupiah(balance);
-
-    document.getElementById("walletModal")
-        .classList.add("open");
-
-}
-
-
-function topUp(amount) {
-
-    balance += amount;
-
-    saveBalance();
-
-    updateBalance();
-
-    document.getElementById("walletBig")
-        .textContent =
-        formatRupiah(balance);
-
-    showToast(
-        "+" + formatRupiah(amount)
-    );
-
-}
-
-
-function updateBalance() {
-
-    const balanceElement =
-        document.getElementById("balance");
-
-    if (balanceElement) {
-
-        balanceElement.textContent =
-            formatRupiah(balance);
-
-    }
-
-}
-
+/* =========================================================
+   STORAGE HELPERS
+========================================================= */
 
 function saveBalance() {
 
-    localStorage.setItem(
-        "walpap_balance",
-        balance
-    );
+  localStorage.setItem(
+    "walpap_balance",
+    balance
+  );
 
 }
 
-
-/* SAVE */
 
 function saveOwned() {
 
-    localStorage.setItem(
-        "walpap_owned",
-        JSON.stringify(owned)
-    );
+  localStorage.setItem(
+    "walpap_owned",
+    JSON.stringify(owned)
+  );
 
 }
 
 
-/* CREATOR */
+function saveFavorites() {
+
+  localStorage.setItem(
+    "walpap_favorites",
+    JSON.stringify(favorites)
+  );
+
+}
+
+
+/* =========================================================
+   BALANCE
+========================================================= */
+
+function formatRupiah(number) {
+
+  return new Intl.NumberFormat(
+    "id-ID"
+  ).format(number);
+
+}
+
+
+function renderBalance() {
+
+  const balanceEl =
+    document.getElementById("balance");
+
+  const walletBalance =
+    document.getElementById("walletBalance");
+
+  if (balanceEl) {
+
+    if (balance >= 1000000) {
+
+      balanceEl.textContent =
+        "Rp" +
+        (balance / 1000000)
+          .toFixed(1)
+          .replace(".0", "") +
+        "M";
+
+    } else if (balance >= 1000) {
+
+      balanceEl.textContent =
+        "Rp" +
+        Math.floor(balance / 1000) +
+        "K";
+
+    } else {
+
+      balanceEl.textContent =
+        "Rp" +
+        balance;
+
+    }
+
+  }
+
+  if (walletBalance) {
+
+    walletBalance.textContent =
+      "Rp" +
+      formatRupiah(balance);
+
+  }
+
+}
+
+
+/* =========================================================
+   WALLPAPER RENDER
+========================================================= */
+
+function renderWallpapers() {
+
+  const grid =
+    document.getElementById(
+      "wallpaperGrid"
+    );
+
+  if (!grid) return;
+
+  let list = wallpapers;
+
+  if (currentFilter !== "all") {
+
+    list =
+      wallpapers.filter(
+        item =>
+          item.rarity === currentFilter
+      );
+
+  }
+
+  grid.innerHTML =
+    list.map(
+      wallpaperCard
+    ).join("");
+
+}
+
+
+function wallpaperCard(item) {
+
+  const liked =
+    favorites.includes(item.id);
+
+  return `
+    <article
+      class="wall-card"
+      onclick="openDetail('${item.id}')"
+    >
+
+      <div class="wall-image">
+
+        <img
+          src="${item.image}"
+          alt="${escapeHtml(item.title)}"
+          loading="lazy"
+        >
+
+        <div class="rarity ${item.rarity}">
+          ${item.rarity.toUpperCase()}
+        </div>
+
+        <button
+          class="favorite ${liked ? "active" : ""}"
+          onclick="event.stopPropagation(); toggleFavorite('${item.id}')"
+        >
+          ${liked ? "♥" : "♡"}
+        </button>
+
+      </div>
+
+      <div class="wall-info">
+
+        <div class="wall-title">
+          ${escapeHtml(item.title)}
+        </div>
+
+        <div class="wall-creator">
+          by ${escapeHtml(item.creator)}
+        </div>
+
+        <div class="wall-bottom">
+
+          <div class="wall-price">
+            Rp${formatRupiah(item.price)}
+          </div>
+
+          <div class="wall-edition">
+            ${item.edition}
+          </div>
+
+        </div>
+
+      </div>
+
+    </article>
+  `;
+
+}
+
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+function filterWallpapers(
+  rarity,
+  button
+) {
+
+  currentFilter = rarity;
+
+  document
+    .querySelectorAll(".filter")
+    .forEach(
+      el =>
+        el.classList.remove("active")
+    );
+
+  if (button) {
+
+    button.classList.add("active");
+
+  }
+
+  renderWallpapers();
+
+}
+
+
+/* =========================================================
+   DETAIL
+========================================================= */
+
+function openDetail(id) {
+
+  const item =
+    wallpapers.find(
+      wallpaper =>
+        wallpaper.id === id
+    );
+
+  if (!item) return;
+
+  currentWallpaper = item;
+
+  const modal =
+    document.getElementById(
+      "detailModal"
+    );
+
+  const image =
+    document.getElementById(
+      "detailImage"
+    );
+
+  const rarity =
+    document.getElementById(
+      "detailRarity"
+    );
+
+  const title =
+    document.getElementById(
+      "detailTitle"
+    );
+
+  const creator =
+    document.getElementById(
+      "detailCreator"
+    );
+
+  const edition =
+    document.getElementById(
+      "detailEdition"
+    );
+
+  const price =
+    document.getElementById(
+      "detailPrice"
+    );
+
+  const buyButton =
+    document.getElementById(
+      "buyButton"
+    );
+
+  image.innerHTML = `
+    <img
+      src="${item.image}"
+      alt="${escapeHtml(item.title)}"
+    >
+  `;
+
+  rarity.textContent =
+    item.rarity.toUpperCase();
+
+  title.textContent =
+    item.title;
+
+  creator.textContent =
+    item.creator;
+
+  edition.textContent =
+    item.edition;
+
+  price.textContent =
+    "Rp" +
+    formatRupiah(item.price);
+
+  if (owned.includes(item.id)) {
+
+    buyButton.textContent =
+      "OWNED";
+
+    buyButton.disabled = true;
+
+    document.getElementById(
+      "setButtons"
+    ).style.display = "grid";
+
+  } else {
+
+    buyButton.textContent =
+      "BUY NOW";
+
+    buyButton.disabled = false;
+
+    document.getElementById(
+      "setButtons"
+    ).style.display = "none";
+
+  }
+
+  modal.classList.add("show");
+
+}
+
+
+/* =========================================================
+   CLOSE DETAIL
+========================================================= */
+
+function closeDetail() {
+
+  document
+    .getElementById("detailModal")
+    .classList.remove("show");
+
+  currentWallpaper = null;
+
+}
+
+
+/* =========================================================
+   BUY
+========================================================= */
+
+function buyCurrent() {
+
+  if (!currentWallpaper) return;
+
+  const item =
+    currentWallpaper;
+
+  if (owned.includes(item.id)) {
+
+    showToast(
+      "Wallpaper sudah kamu miliki."
+    );
+
+    return;
+
+  }
+
+  if (balance < item.price) {
+
+    showToast(
+      "Saldo WALPAP tidak cukup."
+    );
+
+    openWallet();
+
+    return;
+
+  }
+
+  balance -= item.price;
+
+  owned.push(item.id);
+
+  saveBalance();
+
+  saveOwned();
+
+  renderBalance();
+
+  renderVault();
+
+  updateWalletStats();
+
+  document.getElementById(
+    "buyButton"
+  ).textContent = "OWNED";
+
+  document.getElementById(
+    "buyButton"
+  ).disabled = true;
+
+  document.getElementById(
+    "setButtons"
+  ).style.display = "grid";
+
+  showToast(
+    "✓ Wallpaper berhasil masuk Vault!"
+  );
+
+}
+
+
+/* =========================================================
+   FAVORITE
+========================================================= */
+
+function toggleFavorite(id) {
+
+  const index =
+    favorites.indexOf(id);
+
+  if (index >= 0) {
+
+    favorites.splice(index, 1);
+
+    showToast(
+      "Dihapus dari Favorite"
+    );
+
+  } else {
+
+    favorites.push(id);
+
+    showToast(
+      "♥ Ditambahkan ke Favorite"
+    );
+
+  }
+
+  saveFavorites();
+
+  renderWallpapers();
+
+  renderVault();
+
+  updateWalletStats();
+
+}
+
+
+function toggleFavoriteCurrent() {
+
+  if (!currentWallpaper) return;
+
+  toggleFavorite(
+    currentWallpaper.id
+  );
+
+}
+
+
+/* =========================================================
+   VAULT
+========================================================= */
+
+function renderVault() {
+
+  const row =
+    document.getElementById(
+      "vaultRow"
+    );
+
+  if (!row) return;
+
+  const items =
+    wallpapers.filter(
+      item =>
+        owned.includes(item.id)
+    );
+
+  if (!items.length) {
+
+    row.innerHTML = `
+      <div class="vault-empty">
+        💎 Your Vault is empty.<br>
+        Buy your first rare wallpaper.
+      </div>
+    `;
+
+    return;
+
+  }
+
+  row.innerHTML =
+    items
+      .map(
+        item => `
+          <div
+            class="vault-card"
+            onclick="openDetail('${item.id}')"
+          >
+
+            <img
+              src="${item.image}"
+              alt="${escapeHtml(item.title)}"
+              loading="lazy"
+            >
+
+          </div>
+        `
+      )
+      .join("");
+
+}
+
+
+function showVault() {
+
+  const vault =
+    document.querySelector(
+      ".vault"
+    );
+
+  if (vault) {
+
+    vault.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+  }
+
+}
+
+
+/* =========================================================
+   SET WALLPAPER
+========================================================= */
+
+async function setCurrentWallpaper(
+  target
+) {
+
+  if (!currentWallpaper) return;
+
+  if (!owned.includes(
+    currentWallpaper.id
+  )) {
+
+    showToast(
+      "Beli wallpaper terlebih dahulu."
+    );
+
+    return;
+
+  }
+
+  try {
+
+    if (
+      window.Capacitor &&
+      window.Capacitor.Plugins &&
+      window.Capacitor.Plugins.WalpapWallpaper
+    ) {
+
+      if (target === "both") {
+
+        await window.Capacitor.Plugins.WalpapWallpaper.setWallpaper({
+          url: currentWallpaper.image,
+          target: "home"
+        });
+
+        await window.Capacitor.Plugins.WalpapWallpaper.setWallpaper({
+          url: currentWallpaper.image,
+          target: "lock"
+        });
+
+      } else {
+
+        await window.Capacitor.Plugins.WalpapWallpaper.setWallpaper({
+          url: currentWallpaper.image,
+          target: target
+        });
+
+      }
+
+      showToast(
+        target === "both"
+          ? "✓ Home + Lock berhasil!"
+          : target === "home"
+            ? "✓ Home Screen berhasil!"
+            : "✓ Lock Screen berhasil!"
+      );
+
+      return;
+
+    }
+
+    /* Browser fallback */
+
+    const link =
+      document.createElement("a");
+
+    link.href =
+      currentWallpaper.image;
+
+    link.download =
+      currentWallpaper.title +
+      ".jpg";
+
+    link.target = "_blank";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+
+    showToast(
+      "Gambar dibuka. Simpan lalu jadikan wallpaper."
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    showToast(
+      "Gagal memasang wallpaper."
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   WALLET
+========================================================= */
+
+function openWallet() {
+
+  renderBalance();
+
+  updateWalletStats();
+
+  document
+    .getElementById("walletModal")
+    .classList.add("show");
+
+}
+
+
+function closeWallet() {
+
+  document
+    .getElementById("walletModal")
+    .classList.remove("show");
+
+}
+
+
+function topUp() {
+
+  /*
+    Demo top-up.
+    Nanti bisa diganti:
+    QRIS
+    Midtrans
+    Xendit
+    DOKU
+    bank transfer
+  */
+
+  const amount =
+    50000;
+
+  balance += amount;
+
+  saveBalance();
+
+  renderBalance();
+
+  updateWalletStats();
+
+  showToast(
+    "+Rp50.000 demo top-up"
+  );
+
+}
+
+
+function updateWalletStats() {
+
+  const ownedEl =
+    document.getElementById(
+      "walletOwned"
+    );
+
+  const favoriteEl =
+    document.getElementById(
+      "walletFavorites"
+    );
+
+  if (ownedEl) {
+
+    ownedEl.textContent =
+      owned.length;
+
+  }
+
+  if (favoriteEl) {
+
+    favoriteEl.textContent =
+      favorites.length;
+
+  }
+
+  const profileOwned =
+    document.getElementById(
+      "profileOwned"
+    );
+
+  const profileFav =
+    document.getElementById(
+      "profileFav"
+    );
+
+  if (profileOwned) {
+
+    profileOwned.textContent =
+      owned.length;
+
+  }
+
+  if (profileFav) {
+
+    profileFav.textContent =
+      favorites.length;
+
+  }
+
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+function openSearch() {
+
+  document
+    .getElementById("searchModal")
+    .classList.add("show");
+
+  setTimeout(() => {
+
+    const input =
+      document.getElementById(
+        "searchInput"
+      );
+
+    if (input) {
+
+      input.focus();
+
+    }
+
+  }, 150);
+
+  searchWallpapers();
+
+}
+
+
+function closeSearch() {
+
+  document
+    .getElementById("searchModal")
+    .classList.remove("show");
+
+}
+
+
+function searchWallpapers() {
+
+  const input =
+    document.getElementById(
+      "searchInput"
+    );
+
+  const results =
+    document.getElementById(
+      "searchResults"
+    );
+
+  if (!input || !results) return;
+
+  const query =
+    input.value
+      .toLowerCase()
+      .trim();
+
+  const list =
+    query
+      ? wallpapers.filter(
+          item =>
+            item.title
+              .toLowerCase()
+              .includes(query) ||
+            item.creator
+              .toLowerCase()
+              .includes(query) ||
+            item.rarity
+              .toLowerCase()
+              .includes(query)
+        )
+      : wallpapers.slice(0, 5);
+
+  if (!list.length) {
+
+    results.innerHTML = `
+      <div class="vault-empty">
+        No wallpaper found.
+      </div>
+    `;
+
+    return;
+
+  }
+
+  results.innerHTML =
+    list
+      .map(
+        item => `
+          <button
+            class="search-result"
+            onclick="openSearchResult('${item.id}')"
+          >
+
+            <img
+              src="${item.image}"
+              alt=""
+            >
+
+            <div>
+
+              <strong>
+                ${escapeHtml(item.title)}
+              </strong>
+
+              <span>
+                ${escapeHtml(item.creator)}
+                ·
+                ${item.rarity.toUpperCase()}
+              </span>
+
+            </div>
+
+          </button>
+        `
+      )
+      .join("");
+
+}
+
+
+function openSearchResult(id) {
+
+  closeSearch();
+
+  setTimeout(() => {
+
+    openDetail(id);
+
+  }, 200);
+
+}
+
+
+/* =========================================================
+   CREATOR
+========================================================= */
 
 function openCreator() {
 
-    document.getElementById("creatorModal")
-        .classList.add("open");
+  document
+    .getElementById("creatorModal")
+    .classList.add("show");
+
+}
+
+
+function closeCreator() {
+
+  document
+    .getElementById("creatorModal")
+    .classList.remove("show");
 
 }
 
 
 function publishWallpaper() {
 
-    const name =
-        document.getElementById("creatorName")
-            .value.trim();
+  const title =
+    document
+      .getElementById("creatorTitle")
+      .value
+      .trim();
 
-    const price =
-        Number(
-            document.getElementById("creatorPrice")
-                .value
-        );
+  const image =
+    document
+      .getElementById("creatorImage")
+      .value
+      .trim();
 
-    const rarity =
-        document.getElementById("creatorRarity")
-            .value;
-
-    const image =
-        document.getElementById("creatorImage")
-            .value.trim();
-
-
-    if (!name || !image) {
-
-        showToast(
-            "Isi nama dan URL gambar."
-        );
-
-        return;
-    }
-
-
-    const newWallpaper = {
-
-        id:
-            "creator_" +
-            Date.now(),
-
-        name,
-
-        creator:
-            "YOU",
-
-        rarity,
-
-        price:
-            Number.isFinite(price)
-            ? price
-            : 0,
-
-        edition:
-            rarity === "mythic"
-            ? "#01 / 10"
-            : "NEW",
-
-        image
-
-    };
-
-
-    wallpapers.unshift(
-        newWallpaper
+  const price =
+    Number(
+      document
+        .getElementById("creatorPrice")
+        .value
     );
 
-
-    closeModal("creatorModal");
-
-    renderWallpapers(
-        wallpapers,
-        "wallpaperGrid"
-    );
-
-    renderWallpapers(
-        wallpapers,
-        "exploreGrid"
-    );
-
-
-    document.getElementById("creatorName")
-        .value = "";
-
-    document.getElementById("creatorPrice")
-        .value = "";
-
-    document.getElementById("creatorImage")
-        .value = "";
-
+  if (!title) {
 
     showToast(
-        "✓ Wallpaper berhasil dipublish"
+      "Masukkan nama wallpaper."
     );
 
-}
+    return;
 
+  }
 
-/* SEARCH */
+  if (!image) {
 
-function openSearch() {
+    showToast(
+      "Masukkan URL gambar."
+    );
 
-    document.getElementById("searchModal")
-        .classList.add("open");
+    return;
 
-    setTimeout(() => {
+  }
 
-        document.getElementById("searchInput")
-            ?.focus();
+  if (!price || price < 0) {
 
-    }, 200);
+    showToast(
+      "Harga tidak valid."
+    );
 
-}
+    return;
 
+  }
 
-function searchWallpaper() {
+  wallpapers.unshift({
 
-    const query =
-        document.getElementById("searchInput")
-            .value
-            .toLowerCase()
-            .trim();
+    id:
+      "creator_" +
+      Date.now(),
 
-    const results =
-        wallpapers.filter(w =>
-            w.name.toLowerCase().includes(query)
-            ||
-            w.creator.toLowerCase().includes(query)
-            ||
-            w.rarity.toLowerCase().includes(query)
-        );
+    title,
 
+    creator:
+      "WALPAP Creator",
 
-    const container =
-        document.getElementById("searchResults");
+    rarity:
+      "rare",
 
-    container.innerHTML =
-        results.map(w => `
-            <div class="search-result"
-                 onclick="closeModal('searchModal');
-                 openDetail('${w.id}')">
+    price,
 
-                <img src="${w.image}"
-                     alt="${w.name}">
+    edition:
+      "#001 / 10000",
 
-                <div>
+    image
 
-                    <strong>
-                        ${escapeHTML(w.name)}
-                    </strong>
+  });
 
-                    <p>
-                        ${w.rarity.toUpperCase()}
-                        • ${w.edition}
-                    </p>
+  renderWallpapers();
 
-                </div>
+  closeCreator();
 
-            </div>
-        `).join("");
+  document
+    .getElementById(
+      "creatorTitle"
+    )
+    .value = "";
 
-}
+  document
+    .getElementById(
+      "creatorImage"
+    )
+    .value = "";
 
+  document
+    .getElementById(
+      "creatorPrice"
+    )
+    .value = "";
 
-/* WALLPAPER */
-
-async function setCurrentWallpaper(target) {
-
-    if (!currentWallpaper) return;
-
-    if (!owned.includes(currentWallpaper.id)) {
-
-        showToast(
-            "Beli/collect wallpaper terlebih dahulu."
-        );
-
-        return;
-    }
-
-
-    const isNative =
-        window.Capacitor &&
-        window.Capacitor.isNativePlatform &&
-        window.Capacitor.isNativePlatform();
-
-
-    if (isNative) {
-
-        try {
-
-            await window.Capacitor.Plugins
-                .WalpapWallpaper
-                .setWallpaper({
-
-                    url: currentWallpaper.image,
-
-                    target: target
-
-                });
-
-
-            showToast(
-                target === "home"
-                ? "✓ Home Screen berhasil diubah"
-                : "✓ Lock Screen berhasil diubah"
-            );
-
-        } catch (error) {
-
-            console.error(error);
-
-            showToast(
-                "Gagal memasang wallpaper."
-            );
-
-        }
-
-    } else {
-
-        const link =
-            document.createElement("a");
-
-        link.href =
-            currentWallpaper.image;
-
-        link.download =
-            "WALPAP-" +
-            currentWallpaper.name
-                .replace(/\s+/g, "-") +
-            ".jpg";
-
-        document.body.appendChild(link);
-
-        link.click();
-
-        link.remove();
-
-        showToast(
-            "Gambar diunduh. Atur wallpaper melalui Galeri."
-        );
-
-    }
+  showToast(
+    "✓ Wallpaper berhasil dipublish!"
+  );
 
 }
 
 
-/* CLOSE MODAL */
+/* =========================================================
+   PROFILE
+========================================================= */
 
-function closeModal(id) {
+function openProfile() {
 
-    document.getElementById(id)
-        ?.classList.remove("open");
+  updateWalletStats();
 
-}
-
-
-/* FORMAT */
-
-function formatRupiah(number) {
-
-    return new Intl.NumberFormat(
-        "id-ID",
-        {
-            style: "currency",
-            currency: "IDR",
-            maximumFractionDigits: 0
-        }
-    ).format(number);
+  document
+    .getElementById("profileModal")
+    .classList.add("show");
 
 }
 
 
-/* TOAST */
+function closeProfile() {
+
+  document
+    .getElementById("profileModal")
+    .classList.remove("show");
+
+}
+
+
+/* =========================================================
+   HOME / EXPLORE
+========================================================= */
+
+function goHome() {
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+}
+
+
+function scrollExplore() {
+
+  const explore =
+    document.getElementById(
+      "explore"
+    );
+
+  if (explore) {
+
+    explore.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+  }
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
 
 let toastTimer;
 
 function showToast(message) {
 
-    const toast =
-        document.getElementById("toast");
+  const toast =
+    document.getElementById(
+      "toast"
+    );
 
-    toast.textContent = message;
+  if (!toast) return;
 
-    toast.classList.add("show");
+  toast.textContent =
+    message;
 
-    clearTimeout(toastTimer);
+  toast.classList.add("show");
 
-    toastTimer =
-        setTimeout(() => {
+  clearTimeout(toastTimer);
 
-            toast.classList.remove("show");
+  toastTimer =
+    setTimeout(() => {
 
-        }, 2500);
+      toast.classList.remove(
+        "show"
+      );
+
+    }, 2600);
 
 }
 
 
-/* ESCAPE HTML */
+/* =========================================================
+   SECURITY / HTML ESCAPE
+========================================================= */
 
-function escapeHTML(value) {
+function escapeHtml(value) {
 
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+  return String(value)
+
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+
+    .replace(
+      /</g,
+      "&lt;"
+    )
+
+    .replace(
+      />/g,
+      "&gt;"
+    )
+
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+
+    .replace(
+      /'/g,
+      "&#039;"
+    );
 
 }
