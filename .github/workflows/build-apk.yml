@@ -26,7 +26,7 @@ jobs:
 
       # 3. Java
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
@@ -47,7 +47,7 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      # 8. Create package directory
+      # 8. Create Java directory
       - name: Create WALPAP Java directory
         run: |
           mkdir -p android/app/src/main/java/id/walpap/app
@@ -86,9 +86,7 @@ jobs:
                   }
 
                   if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                      call.reject(
-                          "WALPAP membutuhkan Android 7.0 atau lebih baru."
-                      );
+                      call.reject("WALPAP membutuhkan Android 7.0 atau lebih baru.");
                       return;
                   }
 
@@ -198,7 +196,7 @@ jobs:
           }
           EOF
 
-      # 11. Add Android permissions safely
+      # 11. Android permissions
       - name: Add Android permissions
         run: |
           python3 - <<'PY'
@@ -220,23 +218,15 @@ jobs:
               'android:name="android.permission.SET_WALLPAPER" />'
           )
 
-          # Find the end of the opening <manifest ...> tag.
           start = text.find("<manifest")
 
           if start == -1:
-              raise SystemExit(
-                  "ERROR: <manifest> tag tidak ditemukan."
-              )
+              raise SystemExit("ERROR: manifest tidak ditemukan.")
 
           end = text.find(">", start)
 
           if end == -1:
-              raise SystemExit(
-                  "ERROR: pembukaan manifest tidak valid."
-              )
-
-          opening = text[start:end + 1]
-          rest = text[end + 1:]
+              raise SystemExit("ERROR: manifest tidak valid.")
 
           additions = []
 
@@ -251,29 +241,112 @@ jobs:
                   text[:end + 1]
                   + "\n"
                   + "\n".join(additions)
-                  + rest
+                  + text[end + 1:]
               )
 
           path.write_text(text)
 
-          print("Android permissions berhasil ditambahkan.")
+          print("Permissions berhasil.")
           PY
 
-      # 12. Verify Manifest
-      - name: Verify Android Manifest
+      # 12. Decode signing key
+      - name: Decode WALPAP signing key
+        env:
+          WALPAP_KEYSTORE_BASE64: ${{ secrets.WALPAP_KEYSTORE_BASE64 }}
         run: |
-          echo "========== ANDROID MANIFEST =========="
-          cat android/app/src/main/AndroidManifest.xml
-          echo "======================================"
+          mkdir -p android/app
+          echo "$WALPAP_KEYSTORE_BASE64" | base64 --decode > android/app/walpap-release.jks
+          test -s android/app/walpap-release.jks
+          echo "Signing key berhasil dibuat."
 
-      # 13. Build APK
-      - name: Build Debug APK
+      # 13. Configure signing
+      - name: Configure Android signing
+        env:
+          WALPAP_KEYSTORE_PASSWORD: ${{ secrets.WALPAP_KEYSTORE_PASSWORD }}
+          WALPAP_KEY_ALIAS: ${{ secrets.WALPAP_KEY_ALIAS }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("android/app/build.gradle")
+          text = path.read_text()
+
+          signing_block = r'''
+              signingConfigs {
+                  release {
+                      storeFile file("walpap-release.jks")
+                      storePassword System.getenv("WALPAP_KEYSTORE_PASSWORD")
+                      keyAlias System.getenv("WALPAP_KEY_ALIAS")
+                      keyPassword System.getenv("WALPAP_KEYSTORE_PASSWORD")
+                  }
+              }
+          '''
+
+          if "signingConfigs" not in text:
+              text = text.replace(
+                  "android {",
+                  "android {" + signing_block,
+                  1
+              )
+
+          text = text.replace(
+              "buildTypes {",
+              """buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                  }""",
+              1
+          )
+
+          path.write_text(text)
+          PY
+
+      # 14. Set version
+      - name: Set WALPAP version
+        env:
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          path = Path("android/app/build.gradle")
+          text = path.read_text()
+
+          version_code = max(2, int(os.environ["RUN_NUMBER"]))
+
+          text = re.sub(
+              r'versionCode\s+\d+',
+              f'versionCode {version_code}',
+              text,
+              count=1
+          )
+
+          text = re.sub(
+              r'versionName\s+"[^"]+"',
+              'versionName "2.0"',
+              text,
+              count=1
+          )
+
+          path.write_text(text)
+
+          print("WALPAP versionCode:", version_code)
+          print("WALPAP versionName: 2.0")
+          PY
+
+      # 15. Build Release APK
+      - name: Build Release APK
         working-directory: android
+        env:
+          WALPAP_KEYSTORE_PASSWORD: ${{ secrets.WALPAP_KEYSTORE_PASSWORD }}
+          WALPAP_KEY_ALIAS: ${{ secrets.WALPAP_KEY_ALIAS }}
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
 
-      # 14. Check APK
+      # 16. Check APK
       - name: Check APK
         run: |
           echo "========== APK =========="
@@ -283,17 +356,17 @@ jobs:
             -print
           echo "========================="
 
-      # 15. Rename APK
+      # 17. Rename APK
       - name: Rename APK
         run: |
           cp \
-            android/app/build/outputs/apk/debug/app-debug.apk \
-            WALPAP-V1.apk
+            android/app/build/outputs/apk/release/app-release.apk \
+            WALPAP-V2.apk
 
-      # 16. Upload APK
+      # 18. Upload APK
       - name: Upload WALPAP APK
         uses: actions/upload-artifact@v4
         with:
-          name: WALPAP-V1-APK
-          path: WALPAP-V1.apk
+          name: WALPAP-V2-APK
+          path: WALPAP-V2.apk
           if-no-files-found: error
