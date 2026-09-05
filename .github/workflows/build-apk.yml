@@ -14,76 +14,47 @@ jobs:
 
     steps:
 
-      # ==========================================
-      # 1. CHECKOUT SOURCE CODE
-      # ==========================================
+      # 1. Checkout
       - name: Checkout
         uses: actions/checkout@v4
 
-
-      # ==========================================
-      # 2. SETUP NODE.JS
-      # ==========================================
+      # 2. Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-
-      # ==========================================
-      # 3. SETUP JAVA
-      # ==========================================
+      # 3. Java
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
-
-      # ==========================================
-      # 4. SETUP ANDROID SDK
-      # ==========================================
+      # 4. Android SDK
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-
-      # ==========================================
-      # 5. INSTALL NPM DEPENDENCIES
-      # ==========================================
+      # 5. Install dependencies
       - name: Install dependencies
         run: npm install
 
-
-      # ==========================================
-      # 6. CHECK CAPACITOR
-      # ==========================================
-      - name: Check Capacitor
-        run: npx cap --version
-
-
-      # ==========================================
-      # 7. CREATE ANDROID PROJECT
-      # ==========================================
+      # 6. Create Android
       - name: Add Android platform
         run: npx cap add android
 
-
-      # ==========================================
-      # 8. SYNC WEB APP TO ANDROID
-      # ==========================================
+      # 7. Sync Capacitor
       - name: Sync Capacitor
         run: npx cap sync android
 
-
-      # ==========================================
-      # 9. CREATE WALPAP WALLPAPER PLUGIN
-      # ==========================================
-      - name: Create WALPAP wallpaper plugin
-        shell: bash
+      # 8. Create package directory
+      - name: Create WALPAP Java directory
         run: |
-
           mkdir -p android/app/src/main/java/id/walpap/app
 
+      # 9. Create wallpaper plugin
+      - name: Create WALPAP Wallpaper Plugin
+        run: |
           cat > android/app/src/main/java/id/walpap/app/WalpapWallpaperPlugin.java <<'EOF'
           package id.walpap.app;
 
@@ -137,7 +108,6 @@ jobs:
                           connection.setReadTimeout(30000);
                           connection.setRequestMethod("GET");
                           connection.setDoInput(true);
-
                           connection.connect();
 
                           int responseCode =
@@ -164,14 +134,9 @@ jobs:
                           int flags;
 
                           if ("lock".equalsIgnoreCase(target)) {
-
-                              flags =
-                                  WallpaperManager.FLAG_LOCK;
-
+                              flags = WallpaperManager.FLAG_LOCK;
                           } else {
-
-                              flags =
-                                  WallpaperManager.FLAG_SYSTEM;
+                              flags = WallpaperManager.FLAG_SYSTEM;
                           }
 
                           wallpaperManager.setStream(
@@ -193,11 +158,9 @@ jobs:
                       } finally {
 
                           try {
-
                               if (inputStream != null) {
                                   inputStream.close();
                               }
-
                           } catch (Exception ignored) {
                           }
 
@@ -211,14 +174,9 @@ jobs:
           }
           EOF
 
-
-      # ==========================================
-      # 10. CREATE MAIN ACTIVITY
-      # ==========================================
+      # 10. Create MainActivity
       - name: Create MainActivity
-        shell: bash
         run: |
-
           cat > android/app/src/main/java/id/walpap/app/MainActivity.java <<'EOF'
           package id.walpap.app;
 
@@ -240,129 +198,99 @@ jobs:
           }
           EOF
 
-
-      # ==========================================
-      # 11. ADD ANDROID PERMISSIONS
-      # ==========================================
+      # 11. Add Android permissions safely
       - name: Add Android permissions
-        shell: bash
         run: |
-
           python3 - <<'PY'
-
           from pathlib import Path
 
-          manifest = Path(
+          path = Path(
               "android/app/src/main/AndroidManifest.xml"
           )
 
-          text = manifest.read_text()
+          text = path.read_text()
 
-          internet_permission = (
-              '<uses-permission '
+          internet = (
+              '    <uses-permission '
               'android:name="android.permission.INTERNET" />'
           )
 
-          wallpaper_permission = (
-              '<uses-permission '
+          wallpaper = (
+              '    <uses-permission '
               'android:name="android.permission.SET_WALLPAPER" />'
           )
 
-          manifest_tag = '<manifest'
+          # Find the end of the opening <manifest ...> tag.
+          start = text.find("<manifest")
 
-          if (
-              "android.permission.INTERNET"
-              not in text
-          ):
-
-              text = text.replace(
-                  manifest_tag,
-                  manifest_tag
-                  + "\n    "
-                  + internet_permission,
-                  1
+          if start == -1:
+              raise SystemExit(
+                  "ERROR: <manifest> tag tidak ditemukan."
               )
 
-          if (
-              "android.permission.SET_WALLPAPER"
-              not in text
-          ):
+          end = text.find(">", start)
 
-              text = text.replace(
-                  manifest_tag,
-                  manifest_tag
-                  + "\n    "
-                  + wallpaper_permission,
-                  1
+          if end == -1:
+              raise SystemExit(
+                  "ERROR: pembukaan manifest tidak valid."
               )
 
-          manifest.write_text(text)
+          opening = text[start:end + 1]
+          rest = text[end + 1:]
 
+          additions = []
+
+          if "android.permission.INTERNET" not in text:
+              additions.append(internet)
+
+          if "android.permission.SET_WALLPAPER" not in text:
+              additions.append(wallpaper)
+
+          if additions:
+              text = (
+                  text[:end + 1]
+                  + "\n"
+                  + "\n".join(additions)
+                  + rest
+              )
+
+          path.write_text(text)
+
+          print("Android permissions berhasil ditambahkan.")
           PY
 
-
-      # ==========================================
-      # 12. SHOW MANIFEST
-      # ==========================================
-      - name: Check Android Manifest
-        shell: bash
+      # 12. Verify Manifest
+      - name: Verify Android Manifest
         run: |
-
-          echo "===================================="
-          echo "WALPAP AndroidManifest.xml"
-          echo "===================================="
-
+          echo "========== ANDROID MANIFEST =========="
           cat android/app/src/main/AndroidManifest.xml
+          echo "======================================"
 
-          echo "===================================="
-
-
-      # ==========================================
-      # 13. BUILD DEBUG APK
-      # ==========================================
-      - name: Build APK
+      # 13. Build APK
+      - name: Build Debug APK
         working-directory: android
         run: |
-
           chmod +x gradlew
-
           ./gradlew assembleDebug
 
-
-      # ==========================================
-      # 14. CHECK APK
-      # ==========================================
+      # 14. Check APK
       - name: Check APK
-        shell: bash
         run: |
-
-          echo "===================================="
-          echo "APK FILES"
-          echo "===================================="
-
+          echo "========== APK =========="
           find android/app/build/outputs/apk \
             -type f \
             -name "*.apk" \
             -print
+          echo "========================="
 
-          echo "===================================="
-
-
-      # ==========================================
-      # 15. RENAME APK
-      # ==========================================
+      # 15. Rename APK
       - name: Rename APK
-        shell: bash
         run: |
-
           cp \
             android/app/build/outputs/apk/debug/app-debug.apk \
             WALPAP-V1.apk
 
-
-      # ==========================================
-      # 16. UPLOAD APK
-      # ==========================================
+      # 16. Upload APK
       - name: Upload WALPAP APK
         uses: actions/upload-artifact@v4
         with:
