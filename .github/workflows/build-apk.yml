@@ -13,43 +13,75 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Ambil source code
+
+      # ==========================================
+      # 1. CHECKOUT SOURCE CODE
+      # ==========================================
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Node.js
+
+      # ==========================================
+      # 2. SETUP NODE.JS
+      # ==========================================
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      # 3. Java
+
+      # ==========================================
+      # 3. SETUP JAVA
+      # ==========================================
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
-      # 4. Android SDK
+
+      # ==========================================
+      # 4. SETUP ANDROID SDK
+      # ==========================================
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # 5. Install dependencies
+
+      # ==========================================
+      # 5. INSTALL NPM DEPENDENCIES
+      # ==========================================
       - name: Install dependencies
         run: npm install
 
-      # 6. Create Android project
+
+      # ==========================================
+      # 6. CHECK CAPACITOR
+      # ==========================================
+      - name: Check Capacitor
+        run: npx cap --version
+
+
+      # ==========================================
+      # 7. CREATE ANDROID PROJECT
+      # ==========================================
       - name: Add Android platform
         run: npx cap add android
 
-      # 7. Copy WALPAP web files
+
+      # ==========================================
+      # 8. SYNC WEB APP TO ANDROID
+      # ==========================================
       - name: Sync Capacitor
         run: npx cap sync android
 
-      # 8. Create native WALPAP wallpaper plugin
-      - name: Create WALPAP native plugin
+
+      # ==========================================
+      # 9. CREATE WALPAP WALLPAPER PLUGIN
+      # ==========================================
+      - name: Create WALPAP wallpaper plugin
         shell: bash
         run: |
+
           mkdir -p android/app/src/main/java/id/walpap/app
 
           cat > android/app/src/main/java/id/walpap/app/WalpapWallpaperPlugin.java <<'EOF'
@@ -83,7 +115,9 @@ jobs:
                   }
 
                   if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                      call.reject("WALPAP membutuhkan Android 7.0 atau lebih baru.");
+                      call.reject(
+                          "WALPAP membutuhkan Android 7.0 atau lebih baru."
+                      );
                       return;
                   }
 
@@ -96,32 +130,48 @@ jobs:
 
                           URL url = new URL(imageUrl);
 
-                          connection = (HttpURLConnection) url.openConnection();
+                          connection =
+                              (HttpURLConnection) url.openConnection();
+
                           connection.setConnectTimeout(15000);
                           connection.setReadTimeout(30000);
                           connection.setRequestMethod("GET");
                           connection.setDoInput(true);
+
                           connection.connect();
 
-                          int responseCode = connection.getResponseCode();
+                          int responseCode =
+                              connection.getResponseCode();
 
-                          if (responseCode < 200 || responseCode >= 300) {
-                              throw new Exception("HTTP " + responseCode);
+                          if (responseCode < 200 ||
+                              responseCode >= 300) {
+
+                              throw new Exception(
+                                  "HTTP " + responseCode
+                              );
                           }
 
-                          inputStream = new BufferedInputStream(
-                              connection.getInputStream()
-                          );
+                          inputStream =
+                              new BufferedInputStream(
+                                  connection.getInputStream()
+                              );
 
                           WallpaperManager wallpaperManager =
-                              WallpaperManager.getInstance(getContext());
+                              WallpaperManager.getInstance(
+                                  getContext()
+                              );
 
                           int flags;
 
                           if ("lock".equalsIgnoreCase(target)) {
-                              flags = WallpaperManager.FLAG_LOCK;
+
+                              flags =
+                                  WallpaperManager.FLAG_LOCK;
+
                           } else {
-                              flags = WallpaperManager.FLAG_SYSTEM;
+
+                              flags =
+                                  WallpaperManager.FLAG_SYSTEM;
                           }
 
                           wallpaperManager.setStream(
@@ -136,15 +186,18 @@ jobs:
                       } catch (Exception e) {
 
                           call.reject(
-                              "Gagal memasang wallpaper: " + e.getMessage()
+                              "Gagal memasang wallpaper: "
+                              + e.getMessage()
                           );
 
                       } finally {
 
                           try {
+
                               if (inputStream != null) {
                                   inputStream.close();
                               }
+
                           } catch (Exception ignored) {
                           }
 
@@ -152,15 +205,20 @@ jobs:
                               connection.disconnect();
                           }
                       }
+
                   }).start();
               }
           }
           EOF
 
-      # 9. Create MainActivity
-      - name: Configure MainActivity
+
+      # ==========================================
+      # 10. CREATE MAIN ACTIVITY
+      # ==========================================
+      - name: Create MainActivity
         shell: bash
         run: |
+
           cat > android/app/src/main/java/id/walpap/app/MainActivity.java <<'EOF'
           package id.walpap.app;
 
@@ -173,18 +231,25 @@ jobs:
               @Override
               public void onCreate(Bundle savedInstanceState) {
 
-                  registerPlugin(WalpapWallpaperPlugin.class);
+                  registerPlugin(
+                      WalpapWallpaperPlugin.class
+                  );
 
                   super.onCreate(savedInstanceState);
               }
           }
           EOF
 
-      # 10. Add wallpaper permissions
+
+      # ==========================================
+      # 11. ADD ANDROID PERMISSIONS
+      # ==========================================
       - name: Add Android permissions
         shell: bash
         run: |
+
           python3 - <<'PY'
+
           from pathlib import Path
 
           manifest = Path(
@@ -193,46 +258,111 @@ jobs:
 
           text = manifest.read_text()
 
-          permission_internet = (
-              '<uses-permission android:name="android.permission.INTERNET" />'
+          internet_permission = (
+              '<uses-permission '
+              'android:name="android.permission.INTERNET" />'
           )
 
-          permission_wallpaper = (
-              '<uses-permission android:name="android.permission.SET_WALLPAPER" />'
+          wallpaper_permission = (
+              '<uses-permission '
+              'android:name="android.permission.SET_WALLPAPER" />'
           )
 
-          if permission_internet not in text:
+          manifest_tag = '<manifest'
+
+          if (
+              "android.permission.INTERNET"
+              not in text
+          ):
+
               text = text.replace(
-                  "<manifest",
-                  "<manifest\n    " + permission_internet,
+                  manifest_tag,
+                  manifest_tag
+                  + "\n    "
+                  + internet_permission,
                   1
               )
 
-          if permission_wallpaper not in text:
+          if (
+              "android.permission.SET_WALLPAPER"
+              not in text
+          ):
+
               text = text.replace(
-                  "<manifest",
-                  "<manifest\n    " + permission_wallpaper,
+                  manifest_tag,
+                  manifest_tag
+                  + "\n    "
+                  + wallpaper_permission,
                   1
               )
 
           manifest.write_text(text)
+
           PY
 
-      # 11. Build debug APK
+
+      # ==========================================
+      # 12. SHOW MANIFEST
+      # ==========================================
+      - name: Check Android Manifest
+        shell: bash
+        run: |
+
+          echo "===================================="
+          echo "WALPAP AndroidManifest.xml"
+          echo "===================================="
+
+          cat android/app/src/main/AndroidManifest.xml
+
+          echo "===================================="
+
+
+      # ==========================================
+      # 13. BUILD DEBUG APK
+      # ==========================================
       - name: Build APK
         working-directory: android
         run: |
+
           chmod +x gradlew
+
           ./gradlew assembleDebug
 
-      # 12. Rename APK
+
+      # ==========================================
+      # 14. CHECK APK
+      # ==========================================
+      - name: Check APK
+        shell: bash
+        run: |
+
+          echo "===================================="
+          echo "APK FILES"
+          echo "===================================="
+
+          find android/app/build/outputs/apk \
+            -type f \
+            -name "*.apk" \
+            -print
+
+          echo "===================================="
+
+
+      # ==========================================
+      # 15. RENAME APK
+      # ==========================================
       - name: Rename APK
         shell: bash
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk \
-             WALPAP-V1.apk
 
-      # 13. Upload APK
+          cp \
+            android/app/build/outputs/apk/debug/app-debug.apk \
+            WALPAP-V1.apk
+
+
+      # ==========================================
+      # 16. UPLOAD APK
+      # ==========================================
       - name: Upload WALPAP APK
         uses: actions/upload-artifact@v4
         with:
