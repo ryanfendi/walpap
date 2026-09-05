@@ -1,0 +1,242 @@
+name: Build WALPAP APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    name: Build WALPAP Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Ambil source code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # 3. Java
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # 4. Android SDK
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      # 5. Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 6. Create Android project
+      - name: Add Android platform
+        run: npx cap add android
+
+      # 7. Copy WALPAP web files
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      # 8. Create native WALPAP wallpaper plugin
+      - name: Create WALPAP native plugin
+        shell: bash
+        run: |
+          mkdir -p android/app/src/main/java/id/walpap/app
+
+          cat > android/app/src/main/java/id/walpap/app/WalpapWallpaperPlugin.java <<'EOF'
+          package id.walpap.app;
+
+          import android.app.WallpaperManager;
+          import android.os.Build;
+
+          import com.getcapacitor.Plugin;
+          import com.getcapacitor.PluginCall;
+          import com.getcapacitor.PluginMethod;
+          import com.getcapacitor.annotation.CapacitorPlugin;
+
+          import java.io.BufferedInputStream;
+          import java.io.InputStream;
+          import java.net.HttpURLConnection;
+          import java.net.URL;
+
+          @CapacitorPlugin(name = "WalpapWallpaper")
+          public class WalpapWallpaperPlugin extends Plugin {
+
+              @PluginMethod
+              public void setWallpaper(PluginCall call) {
+
+                  String imageUrl = call.getString("url");
+                  String target = call.getString("target", "home");
+
+                  if (imageUrl == null || imageUrl.trim().isEmpty()) {
+                      call.reject("URL wallpaper tidak tersedia.");
+                      return;
+                  }
+
+                  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                      call.reject("WALPAP membutuhkan Android 7.0 atau lebih baru.");
+                      return;
+                  }
+
+                  new Thread(() -> {
+
+                      HttpURLConnection connection = null;
+                      InputStream inputStream = null;
+
+                      try {
+
+                          URL url = new URL(imageUrl);
+
+                          connection = (HttpURLConnection) url.openConnection();
+                          connection.setConnectTimeout(15000);
+                          connection.setReadTimeout(30000);
+                          connection.setRequestMethod("GET");
+                          connection.setDoInput(true);
+                          connection.connect();
+
+                          int responseCode = connection.getResponseCode();
+
+                          if (responseCode < 200 || responseCode >= 300) {
+                              throw new Exception("HTTP " + responseCode);
+                          }
+
+                          inputStream = new BufferedInputStream(
+                              connection.getInputStream()
+                          );
+
+                          WallpaperManager wallpaperManager =
+                              WallpaperManager.getInstance(getContext());
+
+                          int flags;
+
+                          if ("lock".equalsIgnoreCase(target)) {
+                              flags = WallpaperManager.FLAG_LOCK;
+                          } else {
+                              flags = WallpaperManager.FLAG_SYSTEM;
+                          }
+
+                          wallpaperManager.setStream(
+                              inputStream,
+                              null,
+                              true,
+                              flags
+                          );
+
+                          call.resolve();
+
+                      } catch (Exception e) {
+
+                          call.reject(
+                              "Gagal memasang wallpaper: " + e.getMessage()
+                          );
+
+                      } finally {
+
+                          try {
+                              if (inputStream != null) {
+                                  inputStream.close();
+                              }
+                          } catch (Exception ignored) {
+                          }
+
+                          if (connection != null) {
+                              connection.disconnect();
+                          }
+                      }
+                  }).start();
+              }
+          }
+          EOF
+
+      # 9. Create MainActivity
+      - name: Configure MainActivity
+        shell: bash
+        run: |
+          cat > android/app/src/main/java/id/walpap/app/MainActivity.java <<'EOF'
+          package id.walpap.app;
+
+          import android.os.Bundle;
+
+          import com.getcapacitor.BridgeActivity;
+
+          public class MainActivity extends BridgeActivity {
+
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+
+                  registerPlugin(WalpapWallpaperPlugin.class);
+
+                  super.onCreate(savedInstanceState);
+              }
+          }
+          EOF
+
+      # 10. Add wallpaper permissions
+      - name: Add Android permissions
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          manifest = Path(
+              "android/app/src/main/AndroidManifest.xml"
+          )
+
+          text = manifest.read_text()
+
+          permission_internet = (
+              '<uses-permission android:name="android.permission.INTERNET" />'
+          )
+
+          permission_wallpaper = (
+              '<uses-permission android:name="android.permission.SET_WALLPAPER" />'
+          )
+
+          if permission_internet not in text:
+              text = text.replace(
+                  "<manifest",
+                  "<manifest\n    " + permission_internet,
+                  1
+              )
+
+          if permission_wallpaper not in text:
+              text = text.replace(
+                  "<manifest",
+                  "<manifest\n    " + permission_wallpaper,
+                  1
+              )
+
+          manifest.write_text(text)
+          PY
+
+      # 11. Build debug APK
+      - name: Build APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      # 12. Rename APK
+      - name: Rename APK
+        shell: bash
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk \
+             WALPAP-V1.apk
+
+      # 13. Upload APK
+      - name: Upload WALPAP APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: WALPAP-V1-APK
+          path: WALPAP-V1.apk
+          if-no-files-found: error
