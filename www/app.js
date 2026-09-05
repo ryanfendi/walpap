@@ -813,7 +813,7 @@ async function setCurrentWallpaper(target) {
         try {
 
             await window.Capacitor.Plugins
-                .WalloraWallpaper
+                .WalpapWallpaper
                 .setWallpaper({
 
                     url: currentWallpaper.image,
