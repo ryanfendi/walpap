@@ -1,354 +1,256 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0,
-                   maximum-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  >
 
-    <meta name="theme-color" content="#050816">
+  <meta name="theme-color" content="#050816">
 
-    <title>WALPAP</title>
+  <title>WALPAP</title>
 
-    <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="app">
+  <div class="app">
+
+    <!-- BACKGROUND -->
+    <div class="bg">
+      <div class="orb orb1"></div>
+      <div class="orb orb2"></div>
+      <div class="grid"></div>
+      <div class="particles"></div>
+    </div>
 
     <!-- HEADER -->
     <header class="topbar">
 
-        <div class="brand">
-            <div class="brand-mark">W</div>
+      <div class="brand">
+        <div class="brand-mark">W</div>
 
-            <div>
-                <div class="brand-name">WALPAP</div>
-                <div class="brand-sub">OWN YOUR SCREEN</div>
-            </div>
+        <div>
+          <div class="brand-name">WALPAP</div>
+          <div class="brand-sub">OWN YOUR SCREEN</div>
         </div>
+      </div>
 
-        <button class="wallet" onclick="openWallet()">
-            <span>◆</span>
-            <span id="balance">Rp 50.000</span>
-        </button>
+      <button
+        class="wallet-button"
+        onclick="openWallet()"
+      >
+        <span>◆</span>
+        <strong id="balance">Rp50K</strong>
+      </button>
 
     </header>
 
 
-    <!-- HOME -->
-    <main id="homePage" class="page active">
+    <!-- MAIN -->
+    <main>
 
-        <!-- HERO -->
-        <section class="hero">
+      <!-- HERO -->
+      <section class="hero">
 
-            <div class="hero-glow"></div>
+        <div class="hero-glow"></div>
 
-            <div class="hero-content">
+        <div class="hero-content">
 
-                <span class="hero-label">
-                    ✦ DIGITAL COLLECTION
-                </span>
+          <div class="eyebrow">
+            DIGITAL WALLPAPER MARKET
+          </div>
 
-                <h1>
-                    YOUR SCREEN.<br>
-                    <span>YOUR RARITY.</span>
-                </h1>
+          <h1>
+            YOUR SCREEN.
+            <span>YOUR RARITY.</span>
+          </h1>
 
-                <p>
-                    Temukan wallpaper eksklusif,
-                    limited edition, dan koleksi 1/1.
-                </p>
+          <p>
+            Discover limited digital wallpapers
+            and own your favorite screen.
+          </p>
 
-                <button class="primary-btn"
-                        onclick="scrollToDrops()">
-                    EXPLORE COLLECTION
-                    <span>→</span>
-                </button>
-
-            </div>
-
-        </section>
-
-
-        <!-- CATEGORY -->
-        <section class="section">
-
-            <div class="section-title">
-                <div>
-                    <small>DISCOVER</small>
-                    <h2>Explore</h2>
-                </div>
-
-                <button class="see-all"
-                        onclick="openExplore()">
-                    See all →
-                </button>
-            </div>
-
-            <div class="categories">
-
-                <button onclick="filterCategory('all')">
-                    <span>✦</span>
-                    All
-                </button>
-
-                <button onclick="filterCategory('rare')">
-                    <span>◆</span>
-                    Rare
-                </button>
-
-                <button onclick="filterCategory('epic')">
-                    <span>✧</span>
-                    Epic
-                </button>
-
-                <button onclick="filterCategory('legendary')">
-                    <span>♛</span>
-                    Legendary
-                </button>
-
-                <button onclick="filterCategory('mythic')">
-                    <span>✦</span>
-                    Mythic
-                </button>
-
-            </div>
-
-        </section>
-
-
-        <!-- HOT DROPS -->
-        <section id="drops" class="section">
-
-            <div class="section-title">
-
-                <div>
-                    <small>LIMITED RELEASE</small>
-                    <h2>Hot Drops</h2>
-                </div>
-
-                <div class="live">
-                    <i></i>
-                    LIVE
-                </div>
-
-            </div>
-
-
-            <div id="wallpaperGrid"
-                 class="wallpaper-grid">
-            </div>
-
-        </section>
-
-
-        <!-- COLLECTION -->
-        <section class="section">
-
-            <div class="section-title">
-
-                <div>
-                    <small>YOUR COLLECTION</small>
-                    <h2>My Vault</h2>
-                </div>
-
-                <button class="see-all"
-                        onclick="openCollection()">
-                    Open →
-                </button>
-
-            </div>
-
-            <div id="collectionPreview"
-                 class="collection-preview">
-            </div>
-
-        </section>
-
-
-        <!-- CREATOR -->
-        <section class="creator-banner">
-
-            <div class="creator-icon">✦</div>
-
-            <div class="creator-text">
-
-                <small>FOR ARTISTS</small>
-
-                <h2>Turn your art<br>into a collection.</h2>
-
-                <p>
-                    Upload wallpaper dan dapatkan
-                    70% dari setiap penjualan.
-                </p>
-
-            </div>
-
-            <button onclick="openCreator()">
-                CREATE
-            </button>
-
-        </section>
-
-    </main>
-
-
-    <!-- EXPLORE -->
-    <main id="explorePage" class="page">
-
-        <div class="page-header">
-
-            <button onclick="showPage('homePage')">
-                ←
-            </button>
-
-            <div>
-                <small>WALPAP MARKET</small>
-                <h2>Explore</h2>
-            </div>
-
-            <button onclick="openSearch()">
-                ⌕
-            </button>
+          <button
+            class="primary-btn"
+            onclick="scrollExplore()"
+          >
+            EXPLORE DROPS
+            <span>→</span>
+          </button>
 
         </div>
 
-        <div class="filter-row">
+      </section>
 
-            <button class="filter active"
-                    onclick="filterCategory('all')">
-                ALL
-            </button>
 
-            <button class="filter"
-                    onclick="filterCategory('common')">
-                COMMON
-            </button>
+      <!-- STATS -->
+      <section class="stats">
 
-            <button class="filter"
-                    onclick="filterCategory('rare')">
-                RARE
-            </button>
-
-            <button class="filter"
-                    onclick="filterCategory('epic')">
-                EPIC
-            </button>
-
-            <button class="filter"
-                    onclick="filterCategory('legendary')">
-                LEGENDARY
-            </button>
-
-            <button class="filter"
-                    onclick="filterCategory('mythic')">
-                MYTHIC
-            </button>
-
+        <div class="stat-card">
+          <strong>12K+</strong>
+          <span>WALLPAPERS</span>
         </div>
 
-        <div id="exploreGrid"
-             class="wallpaper-grid">
+        <div class="stat-card">
+          <strong>2.4K</strong>
+          <span>CREATORS</span>
         </div>
 
-    </main>
-
-
-    <!-- COLLECTION PAGE -->
-    <main id="collectionPage" class="page">
-
-        <div class="page-header">
-
-            <button onclick="showPage('homePage')">
-                ←
-            </button>
-
-            <div>
-                <small>YOUR DIGITAL VAULT</small>
-                <h2>Collection</h2>
-            </div>
-
+        <div class="stat-card">
+          <strong>87K</strong>
+          <span>COLLECTORS</span>
         </div>
 
-        <div class="vault-stats">
+      </section>
 
-            <div>
-                <strong id="ownedCount">0</strong>
-                <span>OWNED</span>
+
+      <!-- FILTER -->
+      <section
+        class="explore"
+        id="explore"
+      >
+
+        <div class="section-head">
+
+          <div>
+            <div class="section-label">
+              DISCOVER
             </div>
 
-            <div>
-                <strong id="favoriteCount">0</strong>
-                <span>FAVORITES</span>
-            </div>
+            <h2>Explore</h2>
+          </div>
 
-            <div>
-                <strong>∞</strong>
-                <span>MEMORIES</span>
-            </div>
-
-        </div>
-
-        <div id="collectionGrid"
-             class="wallpaper-grid">
-        </div>
-
-    </main>
-
-
-    <!-- PROFILE -->
-    <main id="profilePage" class="page">
-
-        <div class="profile-card">
-
-            <div class="avatar">
-                W
-            </div>
-
-            <h2>WALPAP USER</h2>
-
-            <p>Digital Collector</p>
-
-            <div class="profile-level">
-                <span>LEVEL 01</span>
-                <div>
-                    <i style="width:25%"></i>
-                </div>
-                <small>25 XP</small>
-            </div>
+          <button
+            class="search-btn"
+            onclick="openSearch()"
+          >
+            🔎
+          </button>
 
         </div>
 
 
-        <div class="menu-list">
+        <div class="filters">
 
-            <button onclick="openWallet()">
-                <span>◆</span>
-                Wallet
-                <b>›</b>
-            </button>
+          <button
+            class="filter active"
+            onclick="filterWallpapers('all',this)"
+          >
+            ALL
+          </button>
 
-            <button onclick="openCollection()">
-                <span>▣</span>
-                My Collection
-                <b>›</b>
-            </button>
+          <button
+            class="filter"
+            onclick="filterWallpapers('rare',this)"
+          >
+            RARE
+          </button>
 
-            <button onclick="openCreator()">
-                <span>✦</span>
-                Creator Studio
-                <b>›</b>
-            </button>
+          <button
+            class="filter"
+            onclick="filterWallpapers('epic',this)"
+          >
+            EPIC
+          </button>
 
-            <button>
-                <span>⚙</span>
-                Settings
-                <b>›</b>
-            </button>
+          <button
+            class="filter"
+            onclick="filterWallpapers('legendary',this)"
+          >
+            LEGENDARY
+          </button>
+
+          <button
+            class="filter"
+            onclick="filterWallpapers('mythic',this)"
+          >
+            MYTHIC
+          </button>
 
         </div>
+
+
+        <div
+          class="wallpaper-grid"
+          id="wallpaperGrid"
+        ></div>
+
+      </section>
+
+
+      <!-- VAULT -->
+      <section class="vault">
+
+        <div class="section-head">
+
+          <div>
+            <div class="section-label">
+              YOUR COLLECTION
+            </div>
+
+            <h2>My Vault</h2>
+          </div>
+
+          <button
+            class="see-all"
+            onclick="showVault()"
+          >
+            SEE ALL
+          </button>
+
+        </div>
+
+        <div
+          class="vault-row"
+          id="vaultRow"
+        ></div>
+
+      </section>
+
+
+      <!-- CREATOR -->
+      <section class="creator-banner">
+
+        <div class="creator-light"></div>
+
+        <div class="creator-content">
+
+          <div class="creator-icon">
+            ✦
+          </div>
+
+          <div>
+
+            <div class="section-label">
+              FOR ARTISTS
+            </div>
+
+            <h2>
+              Turn your art
+              into collectibles.
+            </h2>
+
+            <p>
+              Upload your wallpaper,
+              set rarity and editions,
+              and earn from every sale.
+            </p>
+
+          </div>
+
+        </div>
+
+        <button
+          class="creator-btn"
+          onclick="openCreator()"
+        >
+          BECOME CREATOR →
+        </button>
+
+      </section>
 
     </main>
 
@@ -356,289 +258,396 @@
     <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
 
-        <button class="nav-item active"
-                onclick="showPage('homePage', this)">
+      <button
+        class="nav-item active"
+        onclick="goHome()"
+      >
+        <span>⌂</span>
+        <small>HOME</small>
+      </button>
 
-            <span>⌂</span>
-            <small>Home</small>
+      <button
+        class="nav-item"
+        onclick="scrollExplore()"
+      >
+        <span>◈</span>
+        <small>EXPLORE</small>
+      </button>
 
-        </button>
+      <button
+        class="nav-item"
+        onclick="showVault()"
+      >
+        <span>◆</span>
+        <small>VAULT</small>
+      </button>
 
-        <button class="nav-item"
-                onclick="showPage('explorePage', this)">
+      <button
+        class="nav-item"
+        onclick="openCreator()"
+      >
+        <span>✦</span>
+        <small>CREATE</small>
+      </button>
 
-            <span>◈</span>
-            <small>Explore</small>
-
-        </button>
-
-        <button class="nav-create"
-                onclick="openCreator()">
-
-            +
-
-        </button>
-
-        <button class="nav-item"
-                onclick="openCollection()">
-
-            <span>▣</span>
-            <small>Vault</small>
-
-        </button>
-
-        <button class="nav-item"
-                onclick="showPage('profilePage', this)">
-
-            <span>◉</span>
-            <small>Profile</small>
-
-        </button>
+      <button
+        class="nav-item"
+        onclick="openProfile()"
+      >
+        <span>●</span>
+        <small>PROFILE</small>
+      </button>
 
     </nav>
 
-</div>
+  </div>
 
 
-<!-- DETAIL MODAL -->
-<div id="detailModal"
-     class="modal">
+  <!-- WALLPAPER DETAIL -->
+  <div
+    class="modal"
+    id="detailModal"
+  >
 
-    <div class="modal-backdrop"
-         onclick="closeModal('detailModal')">
-    </div>
+    <div class="modal-backdrop" onclick="closeDetail()"></div>
 
-    <div class="modal-card detail-modal">
+    <div class="detail-sheet">
 
-        <button class="close"
-                onclick="closeModal('detailModal')">
-            ×
-        </button>
+      <button
+        class="close-btn"
+        onclick="closeDetail()"
+      >
+        ×
+      </button>
 
-        <div id="detailImage"
-             class="detail-image">
+      <div
+        class="detail-image"
+        id="detailImage"
+      ></div>
+
+      <div class="detail-info">
+
+        <div class="rarity-pill" id="detailRarity">
+          LEGENDARY
         </div>
 
-        <div class="detail-info">
-
-            <div class="rarity-badge"
-                 id="detailRarity">
-                LEGENDARY
-            </div>
-
-            <h2 id="detailName">
-                Wallpaper
-            </h2>
-
-            <p id="detailCreator">
-                WALPAP CREATOR
-            </p>
-
-            <div class="edition-box">
-
-                <div>
-                    <small>EDITION</small>
-                    <strong id="detailEdition">
-                        #027 / 100
-                    </strong>
-                </div>
-
-                <div>
-                    <small>RARITY</small>
-                    <strong id="detailRarityText">
-                        LEGENDARY
-                    </strong>
-                </div>
-
-            </div>
-
-            <div class="price-row">
-
-                <div>
-                    <small>PRICE</small>
-                    <strong id="detailPrice">
-                        Rp 10.000
-                    </strong>
-                </div>
-
-                <button id="buyButton"
-                        onclick="buyCurrentWallpaper()">
-                    BUY NOW
-                </button>
-
-            </div>
-
-            <div class="wallpaper-actions">
-
-                <button onclick="setCurrentWallpaper('home')">
-                    📱 SET HOME SCREEN
-                </button>
-
-                <button onclick="setCurrentWallpaper('lock')">
-                    🔒 SET LOCK SCREEN
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- WALLET -->
-<div id="walletModal"
-     class="modal">
-
-    <div class="modal-backdrop"
-         onclick="closeModal('walletModal')">
-    </div>
-
-    <div class="modal-card">
-
-        <button class="close"
-                onclick="closeModal('walletModal')">
-            ×
-        </button>
-
-        <small>YOUR WALLET</small>
-
-        <h2 id="walletBig">
-            Rp 50.000
+        <h2 id="detailTitle">
+          Wallpaper
         </h2>
 
-        <div class="wallet-actions">
+        <div class="creator-line">
+          <span>BY</span>
+          <strong id="detailCreator">
+            WALPAP CREATOR
+          </strong>
+        </div>
 
-            <button onclick="topUp(10000)">
-                + Rp10K
-            </button>
+        <div class="edition">
+          <span>EDITION</span>
+          <strong id="detailEdition">
+            #027 / 100
+          </strong>
+        </div>
 
-            <button onclick="topUp(50000)">
-                + Rp50K
-            </button>
+        <div class="detail-price">
+          <span>PRICE</span>
+          <strong id="detailPrice">
+            Rp10.000
+          </strong>
+        </div>
 
-            <button onclick="topUp(100000)">
-                + Rp100K
-            </button>
+        <div class="detail-actions">
+
+          <button
+            class="favorite-large"
+            onclick="toggleFavoriteCurrent()"
+          >
+            ♡
+          </button>
+
+          <button
+            class="buy-btn"
+            id="buyButton"
+            onclick="buyCurrent()"
+          >
+            BUY NOW
+          </button>
 
         </div>
 
-        <p class="demo-note">
-            Demo wallet untuk WALPAP V1.
-        </p>
+        <div
+          class="set-wallpaper-buttons"
+          id="setButtons"
+          style="display:none"
+        >
+
+          <button onclick="setCurrentWallpaper('home')">
+            🏠 HOME
+          </button>
+
+          <button onclick="setCurrentWallpaper('lock')">
+            🔒 LOCK
+          </button>
+
+          <button onclick="setCurrentWallpaper('both')">
+            🏠🔒 BOTH
+          </button>
+
+        </div>
+
+      </div>
 
     </div>
 
-</div>
+  </div>
 
 
-<!-- CREATOR -->
-<div id="creatorModal"
-     class="modal">
+  <!-- WALLET -->
+  <div
+    class="modal"
+    id="walletModal"
+  >
 
-    <div class="modal-backdrop"
-         onclick="closeModal('creatorModal')">
-    </div>
+    <div class="modal-backdrop" onclick="closeWallet()"></div>
 
-    <div class="modal-card">
+    <div class="wallet-sheet">
 
-        <button class="close"
-                onclick="closeModal('creatorModal')">
-            ×
-        </button>
+      <button
+        class="close-btn"
+        onclick="closeWallet()"
+      >
+        ×
+      </button>
 
-        <small>CREATOR STUDIO</small>
+      <div class="section-label">
+        WALPAP WALLET
+      </div>
 
-        <h2>Publish Wallpaper</h2>
+      <h2>Your Balance</h2>
 
-        <input id="creatorName"
-               type="text"
-               placeholder="Nama wallpaper">
+      <div
+        class="big-balance"
+        id="walletBalance"
+      >
+        Rp50.000
+      </div>
 
-        <input id="creatorPrice"
-               type="number"
-               placeholder="Harga">
+      <button
+        class="primary-btn full"
+        onclick="topUp()"
+      >
+        + TOP UP
+      </button>
 
-        <select id="creatorRarity">
+      <div class="wallet-info">
 
-            <option value="common">
-                Common
-            </option>
+        <div>
+          <span>Purchased</span>
+          <strong id="walletOwned">
+            0
+          </strong>
+        </div>
 
-            <option value="rare">
-                Rare
-            </option>
+        <div>
+          <span>Favorites</span>
+          <strong id="walletFavorites">
+            0
+          </strong>
+        </div>
 
-            <option value="epic">
-                Epic
-            </option>
-
-            <option value="legendary">
-                Legendary
-            </option>
-
-            <option value="mythic">
-                Mythic
-            </option>
-
-        </select>
-
-        <input id="creatorImage"
-               type="url"
-               placeholder="URL gambar wallpaper">
-
-        <button class="primary-btn full"
-                onclick="publishWallpaper()">
-            PUBLISH
-        </button>
-
-        <p class="creator-fee">
-            Creator mendapatkan <b>70%</b>
-            dari setiap penjualan.
-        </p>
+      </div>
 
     </div>
 
-</div>
+  </div>
 
 
-<!-- SEARCH -->
-<div id="searchModal"
-     class="modal">
+  <!-- SEARCH -->
+  <div
+    class="modal"
+    id="searchModal"
+  >
 
-    <div class="modal-backdrop"
-         onclick="closeModal('searchModal')">
+    <div class="modal-backdrop" onclick="closeSearch()"></div>
+
+    <div class="search-sheet">
+
+      <button
+        class="close-btn"
+        onclick="closeSearch()"
+      >
+        ×
+      </button>
+
+      <div class="section-label">
+        SEARCH
+      </div>
+
+      <h2>Find your screen.</h2>
+
+      <input
+        id="searchInput"
+        class="search-input"
+        type="text"
+        placeholder="Search wallpaper..."
+        oninput="searchWallpapers()"
+      >
+
+      <div
+        id="searchResults"
+        class="search-results"
+      ></div>
+
     </div>
 
-    <div class="modal-card">
+  </div>
 
-        <button class="close"
-                onclick="closeModal('searchModal')">
-            ×
-        </button>
 
-        <small>SEARCH WALPAP</small>
+  <!-- CREATOR -->
+  <div
+    class="modal"
+    id="creatorModal"
+  >
 
-        <input id="searchInput"
-               type="search"
-               placeholder="Cari wallpaper..."
-               oninput="searchWallpaper()">
+    <div class="modal-backdrop" onclick="closeCreator()"></div>
 
-        <div id="searchResults"></div>
+    <div class="creator-sheet">
+
+      <button
+        class="close-btn"
+        onclick="closeCreator()"
+      >
+        ×
+      </button>
+
+      <div class="section-label">
+        WALPAP CREATOR
+      </div>
+
+      <h2>Publish your art.</h2>
+
+      <p>
+        Create limited digital wallpapers
+        and earn from every sale.
+      </p>
+
+      <div class="creator-input">
+
+        <label>
+          Wallpaper name
+        </label>
+
+        <input
+          id="creatorTitle"
+          placeholder="Example: Cyber Tokyo"
+        >
+
+      </div>
+
+      <div class="creator-input">
+
+        <label>
+          Image URL
+        </label>
+
+        <input
+          id="creatorImage"
+          placeholder="https://..."
+        >
+
+      </div>
+
+      <div class="creator-input">
+
+        <label>
+          Price
+        </label>
+
+        <input
+          id="creatorPrice"
+          type="number"
+          placeholder="10000"
+        >
+
+      </div>
+
+      <button
+        class="primary-btn full"
+        onclick="publishWallpaper()"
+      >
+        PUBLISH WALLPAPER
+      </button>
 
     </div>
 
-</div>
+  </div>
 
 
-<!-- TOAST -->
-<div id="toast"
-     class="toast">
-</div>
+  <!-- PROFILE -->
+  <div
+    class="modal"
+    id="profileModal"
+  >
+
+    <div class="modal-backdrop" onclick="closeProfile()"></div>
+
+    <div class="profile-sheet">
+
+      <button
+        class="close-btn"
+        onclick="closeProfile()"
+      >
+        ×
+      </button>
+
+      <div class="avatar">
+        W
+      </div>
+
+      <h2>WALPAP Collector</h2>
+
+      <p>
+        Digital Screen Collector
+      </p>
+
+      <div class="profile-stats">
+
+        <div>
+          <strong id="profileOwned">
+            0
+          </strong>
+          <span>OWNED</span>
+        </div>
+
+        <div>
+          <strong id="profileFav">
+            0
+          </strong>
+          <span>FAVORITES</span>
+        </div>
+
+        <div>
+          <strong>1</strong>
+          <span>LEVEL</span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
 
 
-<script src="app.js"></script>
+  <!-- TOAST -->
+  <div
+    id="toast"
+    class="toast"
+  >
+    WALPAP
+  </div>
+
+
+  <script src="app.js"></script>
 
 </body>
 </html>
