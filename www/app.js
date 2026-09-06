@@ -1,8 +1,23 @@
 /* =========================================================
-   WALPAP V5
+   WALPAP V6
    Premium Digital Wallpaper Marketplace
    Connected to WALPAP API
-   Server-authoritative balance
+
+   IMPORTANT
+   ---------------------------------------------------------
+   Server/API adalah sumber kebenaran untuk:
+   - User
+   - Balance
+   - Purchases
+   - Vault
+   - Wallpapers
+
+   Frontend hanya menyimpan cache ringan di localStorage.
+========================================================= */
+
+
+/* =========================================================
+   API
 ========================================================= */
 
 const API_BASE =
@@ -10,76 +25,196 @@ const API_BASE =
 
 
 /* =========================================================
-   LOCAL CACHE / FALLBACK
+   TEST USER
+   ---------------------------------------------------------
+   Untuk sementara kita gunakan akun buyer yang sudah
+   memiliki data di backend.
+
+   Setelah sistem login/auth selesai, bagian ini bisa
+   diganti dengan user ID dari sistem login.
+========================================================= */
+
+const TEST_USER_ID =
+  "5be6256e-a996-46e0-889a-7500e65d2db0";
+
+
+/* =========================================================
+   DEMO DATA
+   ---------------------------------------------------------
+   Tidak digunakan sebagai sumber data marketplace.
+   Hanya fallback visual jika diperlukan.
 ========================================================= */
 
 const demoWallpapers = [
+
   {
     id: "w1",
+
     title: "Neon Tokyo",
+
     creator: "CyberNeko",
+
+    creatorId: "",
+
     rarity: "legendary",
+
     price: 10000,
+
     edition: "#027 / 100",
+
+    editionSize: 100,
+
+    editionLimit: 100,
+
+    sold: 27,
+
+    editionsSold: 27,
+
     image:
       "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=90"
   },
 
   {
     id: "w2",
+
     title: "Purple Galaxy",
+
     creator: "NovaX",
+
+    creatorId: "",
+
     rarity: "epic",
+
     price: 7500,
+
     edition: "#184 / 1000",
+
+    editionSize: 1000,
+
+    editionLimit: 1000,
+
+    sold: 184,
+
+    editionsSold: 184,
+
     image:
       "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=900&q=90"
   },
 
   {
     id: "w3",
+
     title: "Cyber City",
+
     creator: "PixelForge",
+
+    creatorId: "",
+
     rarity: "rare",
+
     price: 5000,
+
     edition: "#4921 / 10000",
+
+    editionSize: 10000,
+
+    editionLimit: 10000,
+
+    sold: 4921,
+
+    editionsSold: 4921,
+
     image:
       "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=90"
   },
 
   {
     id: "w4",
+
     title: "Dark Mountain",
+
     creator: "VoidStudio",
+
+    creatorId: "",
+
     rarity: "mythic",
+
     price: 25000,
+
     edition: "#03 / 10",
+
+    editionSize: 10,
+
+    editionLimit: 10,
+
+    sold: 3,
+
+    editionsSold: 3,
+
     image:
       "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=90"
   },
 
   {
     id: "w5",
+
     title: "Ocean Dream",
+
     creator: "BlueWave",
+
+    creatorId: "",
+
     rarity: "rare",
+
     price: 4500,
+
     edition: "#3280 / 10000",
+
+    editionSize: 10000,
+
+    editionLimit: 10000,
+
+    sold: 3280,
+
+    editionsSold: 3280,
+
     image:
       "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=90"
   },
 
   {
     id: "w6",
+
     title: "Golden Future",
+
     creator: "LuxArt",
+
+    creatorId: "",
+
     rarity: "legendary",
+
     price: 15000,
+
     edition: "#041 / 100",
+
+    editionSize: 100,
+
+    editionLimit: 100,
+
+    sold: 41,
+
+    editionsSold: 41,
+
     image:
       "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=90"
   }
+
 ];
+
+
+/* =========================================================
+   GLOBAL DATA
+========================================================= */
 
 let wallpapers = [];
 
@@ -89,16 +224,21 @@ let wallpapers = [];
 ========================================================= */
 
 let userId =
-  localStorage.getItem("walpap_user_id");
+  TEST_USER_ID;
+
 
 let username =
-  localStorage.getItem("walpap_username") ||
-  "WALPAP User";
+  localStorage.getItem(
+    "walpap_username"
+  ) ||
+  "Test Buyer Paid";
 
 
 /* =========================================================
    BALANCE
-   SERVER IS THE SOURCE OF TRUTH
+   ---------------------------------------------------------
+   Jangan mengambil balance dari localStorage sebagai
+   sumber kebenaran.
 ========================================================= */
 
 let balance = 0;
@@ -108,10 +248,7 @@ let balance = 0;
    OWNED
 ========================================================= */
 
-let owned =
-  JSON.parse(
-    localStorage.getItem("walpap_owned") || "[]"
-  );
+let owned = [];
 
 
 /* =========================================================
@@ -119,8 +256,11 @@ let owned =
 ========================================================= */
 
 let favorites =
-  JSON.parse(
-    localStorage.getItem("walpap_favorites") || "[]"
+  safeJSONParse(
+    localStorage.getItem(
+      "walpap_favorites"
+    ),
+    []
   );
 
 
@@ -134,7 +274,32 @@ let currentFilter = "all";
 
 let apiOnline = false;
 
-let toastTimer;
+let toastTimer = null;
+
+
+/* =========================================================
+   SAFE JSON
+========================================================= */
+
+function safeJSONParse(
+  value,
+  fallback
+) {
+
+  try {
+
+    const parsed =
+      JSON.parse(value);
+
+    return parsed;
+
+  } catch (error) {
+
+    return fallback;
+
+  }
+
+}
 
 
 /* =========================================================
@@ -143,7 +308,12 @@ let toastTimer;
 
 document.addEventListener(
   "DOMContentLoaded",
-  async () => {
+  async function () {
+
+    console.log(
+      "WALPAP V6 starting..."
+    );
+
 
     renderBalance();
 
@@ -153,22 +323,72 @@ document.addEventListener(
 
     updateWalletStats();
 
-    await initializeUser();
+
+    /*
+      1. Check API
+    */
 
     await checkAPI();
 
+
+    /*
+      2. Load server user
+    */
+
+    await initializeUser();
+
+
+    /*
+      3. Refresh user balance
+    */
+
     await loadUserFromAPI();
+
+
+    /*
+      4. Load marketplace
+    */
 
     await loadWallpapers();
 
+
+    /*
+      5. Load real Vault
+    */
+
     await syncVault();
+
+
+    /*
+      Final UI
+    */
+
+    renderBalance();
+
+    renderWallpapers();
+
+    await renderVault();
+
+    updateWalletStats();
+
+
+    console.log(
+      "WALPAP V6 ready",
+      {
+        userId,
+        username,
+        balance,
+        owned,
+        apiOnline
+      }
+    );
 
   }
 );
 
 
 /* =========================================================
-   API HELPER
+   API REQUEST
 ========================================================= */
 
 async function apiRequest(
@@ -176,19 +396,30 @@ async function apiRequest(
   options = {}
 ) {
 
+  const requestOptions = {
+
+    ...options,
+
+    headers: {
+
+      ...(options.body
+        ? {
+            "Content-Type":
+              "application/json"
+          }
+        : {}),
+
+      ...(options.headers || {})
+
+    }
+
+  };
+
+
   const response =
     await fetch(
       API_BASE + endpoint,
-      {
-        ...options,
-
-        headers: {
-          "Content-Type":
-            "application/json",
-
-          ...(options.headers || {})
-        }
-      }
+      requestOptions
     );
 
 
@@ -209,11 +440,34 @@ async function apiRequest(
 
   if (!response.ok) {
 
-    const message =
-      data?.error?.message ||
-      data?.message ||
-      data?.error ||
-      `API Error ${response.status}`;
+    let message =
+      "API Error " +
+      response.status;
+
+
+    if (
+      data?.error?.message
+    ) {
+
+      message =
+        data.error.message;
+
+    } else if (
+      typeof data?.error ===
+      "string"
+    ) {
+
+      message =
+        data.error;
+
+    } else if (
+      data?.message
+    ) {
+
+      message =
+        data.message;
+
+    }
 
 
     const apiError =
@@ -226,6 +480,7 @@ async function apiRequest(
 
     apiError.code =
       data?.error?.code ||
+      data?.code ||
       null;
 
 
@@ -259,12 +514,20 @@ async function checkAPI() {
       data?.success === true;
 
 
+    console.log(
+      "WALPAP API:",
+      apiOnline
+        ? "ONLINE"
+        : "UNKNOWN"
+    );
+
+
     return apiOnline;
 
   } catch (error) {
 
-    console.warn(
-      "WALPAP API offline:",
+    console.error(
+      "WALPAP API OFFLINE:",
       error
     );
 
@@ -280,165 +543,35 @@ async function checkAPI() {
 
 
 /* =========================================================
-   USER INITIALIZATION
+   INITIALIZE USER
+   ---------------------------------------------------------
+   TIDAK MEMBUAT USER BARU.
+
+   Kita harus menggunakan user backend yang sudah ada.
 ========================================================= */
 
 async function initializeUser() {
 
-  /* Existing user */
+  if (!userId) {
 
-  if (userId) {
-
-    try {
-
-      const data =
-        await apiRequest(
-          `/api/users/${encodeURIComponent(userId)}`
-        );
-
-
-      const user =
-        data?.user ||
-        data?.data ||
-        data;
-
-
-      if (user?.id) {
-
-        userId =
-          user.id;
-
-
-        username =
-          user.name ||
-          user.username ||
-          username;
-
-
-        localStorage.setItem(
-          "walpap_user_id",
-          userId
-        );
-
-
-        localStorage.setItem(
-          "walpap_username",
-          username
-        );
-
-
-        if (
-          typeof user.balance === "number"
-        ) {
-
-          balance =
-            user.balance;
-
-        }
-
-
-        renderBalance();
-
-        return user;
-
-      }
-
-    } catch (error) {
-
-      console.warn(
-        "Existing WALPAP user could not be loaded:",
-        error
-      );
-
-    }
-
-  }
-
-
-  /* Create new user */
-
-  try {
-
-    const data =
-      await apiRequest(
-        "/api/users",
-        {
-          method: "POST",
-
-          body:
-            JSON.stringify({
-              name: username
-            })
-        }
-      );
-
-
-    const user =
-      data?.user ||
-      data?.data ||
-      data;
-
-
-    if (user?.id) {
-
-      userId =
-        user.id;
-
-
-      username =
-        user.name ||
-        user.username ||
-        username;
-
-
-      balance =
-        Number(
-          user.balance || 0
-        );
-
-
-      localStorage.setItem(
-        "walpap_user_id",
-        userId
-      );
-
-
-      localStorage.setItem(
-        "walpap_username",
-        username
-      );
-
-
-      renderBalance();
-
-
-      return user;
-
-    }
-
-  } catch (error) {
-
-    console.warn(
-      "User API unavailable. Local display mode:",
-      error
+    console.error(
+      "WALPAP userId tidak tersedia."
     );
 
+    return null;
+
   }
 
 
-  return null;
+  if (!apiOnline) {
 
-}
+    console.warn(
+      "API offline, user tidak dapat disinkronkan."
+    );
 
-
-/* =========================================================
-   LOAD USER FROM API
-========================================================= */
-
-async function loadUserFromAPI() {
-
-  if (!userId)
     return null;
+
+  }
 
 
   try {
@@ -455,20 +588,116 @@ async function loadUserFromAPI() {
       data;
 
 
-    if (!user?.id)
-      return null;
+    if (!user?.id) {
+
+      throw new Error(
+        "User tidak ditemukan di WALPAP API."
+      );
+
+    }
+
+
+    userId =
+      user.id;
+
+
+    username =
+      user.name ||
+      user.username ||
+      username;
 
 
     if (
-      typeof user.balance === "number"
+      user.balance !==
+      undefined &&
+      user.balance !==
+      null
     ) {
 
       balance =
-        user.balance;
+        Number(
+          user.balance
+        );
 
     } else {
 
       balance = 0;
+
+    }
+
+
+    localStorage.setItem(
+      "walpap_user_id",
+      userId
+    );
+
+
+    localStorage.setItem(
+      "walpap_username",
+      username
+    );
+
+
+    saveBalance();
+
+    renderBalance();
+
+    console.log(
+      "WALPAP USER LOADED:",
+      user
+    );
+
+
+    return user;
+
+  } catch (error) {
+
+    console.error(
+      "USER LOAD ERROR:",
+      error
+    );
+
+
+    return null;
+
+  }
+
+}
+
+
+/* =========================================================
+   LOAD USER FROM API
+========================================================= */
+
+async function loadUserFromAPI() {
+
+  if (
+    !userId ||
+    !apiOnline
+  ) {
+
+    return null;
+
+  }
+
+
+  try {
+
+    const data =
+      await apiRequest(
+        `/api/users/${encodeURIComponent(userId)}`
+      );
+
+
+    const user =
+      data?.user ||
+      data?.data ||
+      data;
+
+
+    if (!user?.id) {
+
+      return null;
 
     }
 
@@ -479,21 +708,35 @@ async function loadUserFromAPI() {
       username;
 
 
+    balance =
+      Number(
+        user.balance ?? 0
+      );
+
+
     localStorage.setItem(
       "walpap_username",
       username
     );
 
 
+    saveBalance();
+
     renderBalance();
+
+
+    console.log(
+      "SERVER BALANCE:",
+      balance
+    );
 
 
     return user;
 
   } catch (error) {
 
-    console.warn(
-      "Could not sync user balance:",
+    console.error(
+      "BALANCE SYNC ERROR:",
       error
     );
 
@@ -511,6 +754,17 @@ async function loadUserFromAPI() {
 
 async function loadWallpapers() {
 
+  if (!apiOnline) {
+
+    wallpapers = [];
+
+    renderWallpapers();
+
+    return [];
+
+  }
+
+
   try {
 
     const data =
@@ -521,12 +775,14 @@ async function loadWallpapers() {
 
     let list =
       data?.wallpapers ||
-      data?.data ||
       data?.items ||
-      [];
+      data?.data ||
+      data;
 
 
-    if (!Array.isArray(list)) {
+    if (
+      !Array.isArray(list)
+    ) {
 
       list = [];
 
@@ -539,50 +795,30 @@ async function loadWallpapers() {
       );
 
 
-    if (!wallpapers.length) {
-
-      /*
-        API works but currently has no wallpapers.
-        Keep demo data for visual browsing.
-      */
-
-      wallpapers =
-        demoWallpapers.slice();
-
-    } else {
-
-      apiOnline = true;
-
-    }
+    console.log(
+      "WALLPAPERS FROM SERVER:",
+      wallpapers
+    );
 
 
     renderWallpapers();
-
-    renderVault();
-
-    updateWalletStats();
-
 
     return wallpapers;
 
   } catch (error) {
 
-    console.warn(
-      "Using demo wallpaper data:",
+    console.error(
+      "WALLPAPER LOAD ERROR:",
       error
     );
 
 
-    wallpapers =
-      demoWallpapers.slice();
-
+    wallpapers = [];
 
     renderWallpapers();
 
-    renderVault();
 
-
-    return wallpapers;
+    return [];
 
   }
 
@@ -593,7 +829,14 @@ async function loadWallpapers() {
    NORMALIZE WALLPAPER
 ========================================================= */
 
-function normalizeWallpaper(item) {
+function normalizeWallpaper(
+  item
+) {
+
+  item =
+    item ||
+    {};
+
 
   const rarity =
     String(
@@ -604,7 +847,24 @@ function normalizeWallpaper(item) {
 
   const price =
     Number(
-      item.price ||
+      item.price ?? 0
+    );
+
+
+  const editionLimit =
+    item.editionLimit ??
+    item.editionSize ??
+    item.maxEditions ??
+    rarityMaxEditions(
+      rarity
+    );
+
+
+  const editionsSold =
+    Number(
+      item.editionsSold ??
+      item.soldCount ??
+      item.sold ??
       0
     );
 
@@ -616,23 +876,17 @@ function normalizeWallpaper(item) {
   if (!edition) {
 
     const serial =
-      item.serialNumber ||
-      item.editionNumber ||
-      item.editionsSold ||
-      1;
-
-
-    const max =
-      item.editionSize ||
-      item.maxEditions ||
-      item.editionLimit ||
-      rarityMaxEditions(
-        rarity
-      );
+      item.editionNumber ??
+      item.serialNumber ??
+      (editionsSold > 0
+        ? editionsSold
+        : 1);
 
 
     edition =
-      `#${String(serial).padStart(3, "0")} / ${max}`;
+      `#${String(
+        serial
+      ).padStart(5, "0")} / ${editionLimit}`;
 
   }
 
@@ -641,7 +895,8 @@ function normalizeWallpaper(item) {
 
     id:
       item.id ||
-      item.wallpaperId,
+      item.wallpaperId ||
+      "",
 
 
     title:
@@ -651,9 +906,10 @@ function normalizeWallpaper(item) {
 
 
     creator:
-      item.creator ||
       item.creatorName ||
+      item.creator ||
       item.username ||
+      item.creatorId ||
       "WALPAP Creator",
 
 
@@ -671,53 +927,44 @@ function normalizeWallpaper(item) {
     edition,
 
 
-    image:
-      item.image ||
-      item.imageUrl ||
-      item.url ||
-      "",
-
-
     editionSize:
-      item.editionSize ||
-      item.maxEditions ||
-      item.editionLimit ||
-      rarityMaxEditions(
-        rarity
-      ),
+      editionLimit,
 
 
-    editionLimit:
-      item.editionLimit ||
-      item.editionSize ||
-      item.maxEditions ||
-      rarityMaxEditions(
-        rarity
-      ),
+    editionLimit,
 
 
     sold:
-      item.sold ||
-      item.soldCount ||
-      item.editionsSold ||
-      0,
+      editionsSold,
 
 
-    editionsSold:
-      item.editionsSold ||
-      item.soldCount ||
-      item.sold ||
-      0,
+    editionsSold,
 
 
     favoriteCount:
-      item.favoriteCount ||
-      0,
+      Number(
+        item.favoriteCount ??
+        0
+      ),
 
 
     soldOut:
-      item.soldOut ||
-      false
+      Boolean(
+        item.soldOut ??
+        (
+          editionLimit !==
+          "UNLIMITED" &&
+          Number(editionsSold) >=
+          Number(editionLimit)
+        )
+      ),
+
+
+    image:
+      item.imageUrl ||
+      item.image ||
+      item.url ||
+      ""
 
   };
 
@@ -734,17 +981,23 @@ function rarityMaxEditions(
 
   const values = {
 
-    common: "UNLIMITED",
+    common:
+      "UNLIMITED",
 
-    rare: 10000,
+    rare:
+      10000,
 
-    epic: 1000,
+    epic:
+      1000,
 
-    legendary: 100,
+    legendary:
+      100,
 
-    mythic: 10,
+    mythic:
+      10,
 
-    "1/1": 1
+    "1/1":
+      1
 
   };
 
@@ -758,18 +1011,10 @@ function rarityMaxEditions(
 
 
 /* =========================================================
-   STORAGE HELPERS
+   STORAGE
 ========================================================= */
 
 function saveBalance() {
-
-  /*
-    Balance is server-authoritative.
-
-    We only cache the latest server value.
-    The app never uses this cache to create
-    money on the server.
-  */
 
   localStorage.setItem(
     "walpap_balance",
@@ -783,7 +1028,9 @@ function saveOwned() {
 
   localStorage.setItem(
     "walpap_owned",
-    JSON.stringify(owned)
+    JSON.stringify(
+      owned
+    )
   );
 
 }
@@ -793,14 +1040,16 @@ function saveFavorites() {
 
   localStorage.setItem(
     "walpap_favorites",
-    JSON.stringify(favorites)
+    JSON.stringify(
+      favorites
+    )
   );
 
 }
 
 
 /* =========================================================
-   FORMAT RUPIAH
+   RUPIAH
 ========================================================= */
 
 function formatRupiah(
@@ -834,19 +1083,32 @@ function renderBalance() {
     );
 
 
+  const formatted =
+    formatRupiah(
+      balance
+    );
+
+
   if (balanceEl) {
 
     if (balance >= 1000000) {
 
       balanceEl.textContent =
         "Rp" +
-        (balance / 1000000)
+        (
+          balance /
+          1000000
+        )
           .toFixed(1)
-          .replace(".0", "") +
+          .replace(
+            ".0",
+            ""
+          ) +
         "M";
 
-
-    } else if (balance >= 1000) {
+    } else if (
+      balance >= 1000
+    ) {
 
       balanceEl.textContent =
         "Rp" +
@@ -855,12 +1117,11 @@ function renderBalance() {
         ) +
         "K";
 
-
     } else {
 
       balanceEl.textContent =
         "Rp" +
-        formatRupiah(balance);
+        formatted;
 
     }
 
@@ -871,7 +1132,7 @@ function renderBalance() {
 
     walletBalance.textContent =
       "Rp" +
-      formatRupiah(balance);
+      formatted;
 
   }
 
@@ -899,7 +1160,8 @@ function renderWallpapers() {
 
 
   if (
-    currentFilter !== "all"
+    currentFilter !==
+    "all"
   ) {
 
     list =
@@ -949,6 +1211,12 @@ function wallpaperCard(
     );
 
 
+  const ownedNow =
+    owned.includes(
+      item.id
+    );
+
+
   return `
     <article
       class="wall-card"
@@ -964,7 +1232,9 @@ function wallpaperCard(
           onerror="this.style.display='none'"
         >
 
-        <div class="rarity ${escapeAttribute(item.rarity)}">
+        <div
+          class="rarity ${escapeAttribute(item.rarity)}"
+        >
           ${escapeHtml(
             item.rarity.toUpperCase()
           )}
@@ -972,7 +1242,10 @@ function wallpaperCard(
 
         <button
           class="favorite ${liked ? "active" : ""}"
-          onclick="event.stopPropagation(); toggleFavorite('${escapeAttribute(item.id)}')"
+          onclick="
+            event.stopPropagation();
+            toggleFavorite('${escapeAttribute(item.id)}')
+          "
         >
           ${liked ? "♥" : "♡"}
         </button>
@@ -983,24 +1256,42 @@ function wallpaperCard(
       <div class="wall-info">
 
         <div class="wall-title">
-          ${escapeHtml(item.title)}
+          ${escapeHtml(
+            item.title
+          )}
         </div>
 
         <div class="wall-creator">
-          by ${escapeHtml(item.creator)}
+          by ${escapeHtml(
+            item.creator
+          )}
         </div>
 
         <div class="wall-bottom">
 
           <div class="wall-price">
-            Rp${formatRupiah(item.price)}
+            Rp${formatRupiah(
+              item.price
+            )}
           </div>
 
           <div class="wall-edition">
-            ${escapeHtml(item.edition)}
+            ${escapeHtml(
+              item.edition
+            )}
           </div>
 
         </div>
+
+        ${
+          ownedNow
+            ? `
+              <div class="owned-label">
+                ✓ OWNED
+              </div>
+            `
+            : ""
+        }
 
       </div>
 
@@ -1028,8 +1319,8 @@ function filterWallpapers(
       ".filter"
     )
     .forEach(
-      el =>
-        el.classList.remove(
+      element =>
+        element.classList.remove(
           "active"
         )
     );
@@ -1193,22 +1484,30 @@ function openDetail(
       buyButton.textContent =
         "OWNED";
 
+      buyButton.disabled =
+        true;
+
+      showSetButtons();
+
+    } else if (
+      item.soldOut
+    ) {
+
+      buyButton.textContent =
+        "SOLD OUT";
 
       buyButton.disabled =
         true;
 
-
-      showSetButtons();
+      hideSetButtons();
 
     } else {
 
       buyButton.textContent =
         "BUY NOW";
 
-
       buyButton.disabled =
         false;
-
 
       hideSetButtons();
 
@@ -1225,7 +1524,7 @@ function openDetail(
 
 
 /* =========================================================
-   SET BUTTON UI
+   SET BUTTONS
 ========================================================= */
 
 function showSetButtons() {
@@ -1297,13 +1596,20 @@ function closeDetail() {
 
 async function buyCurrent() {
 
-  if (!currentWallpaper)
+  if (!currentWallpaper) {
+
     return;
+
+  }
 
 
   const item =
     currentWallpaper;
 
+
+  /*
+    Already owned
+  */
 
   if (
     owned.includes(
@@ -1320,259 +1626,293 @@ async function buyCurrent() {
   }
 
 
-  if (!userId) {
+  /*
+    API must be online
+  */
+
+  if (!apiOnline) {
 
     showToast(
-      "Akun belum siap. Coba lagi."
+      "WALPAP API sedang offline."
     );
 
-
-    await initializeUser();
-
-
-    if (!userId)
-      return;
+    return;
 
   }
 
 
   /*
-    IMPORTANT:
-
-    Always refresh user from API before purchase.
-    This prevents stale local balance from being
-    treated as the real balance.
+    Refresh balance first.
   */
 
   await loadUserFromAPI();
 
 
   /*
-    API PURCHASE
+    Self purchase protection.
   */
 
-  if (apiOnline) {
+  if (
+    item.creatorId &&
+    item.creatorId ===
+    userId
+  ) {
 
-    try {
+    showToast(
+      "Creator tidak dapat membeli wallpaper sendiri."
+    );
 
-      const data =
-        await apiRequest(
-          "/api/purchases",
-          {
-            method: "POST",
+    return;
 
-            body:
-              JSON.stringify({
-                userId,
+  }
 
-                wallpaperId:
-                  item.id
-              })
-          }
+
+  /*
+    Client-side balance check.
+    Server remains authoritative.
+  */
+
+  if (
+    balance <
+    Number(item.price)
+  ) {
+
+    showToast(
+      "Saldo WALPAP tidak cukup."
+    );
+
+    openWallet();
+
+    return;
+
+  }
+
+
+  /*
+    Disable button while purchasing.
+  */
+
+  const buyButton =
+    document.getElementById(
+      "buyButton"
+    );
+
+
+  if (buyButton) {
+
+    buyButton.disabled =
+      true;
+
+    buyButton.textContent =
+      "BUYING...";
+
+  }
+
+
+  try {
+
+    const data =
+      await apiRequest(
+        "/api/purchases",
+        {
+          method: "POST",
+
+          body:
+            JSON.stringify({
+              userId,
+
+              wallpaperId:
+                item.id
+            })
+        }
+      );
+
+
+    console.log(
+      "PURCHASE RESPONSE:",
+      data
+    );
+
+
+    const purchase =
+      data?.purchase ||
+      data?.data ||
+      data;
+
+
+    /*
+      IMPORTANT:
+      Backend returns userBalance.
+    */
+
+    if (
+      data?.userBalance !==
+      undefined
+    ) {
+
+      balance =
+        Number(
+          data.userBalance
         );
 
-
-      const purchase =
-        data?.purchase ||
-        data?.data ||
-        data;
-
+    } else {
 
       /*
-        The WALPAP API returns:
-
-        userBalance: 49000
-
-        NOT:
-
-        purchase.balance
-      */
-
-      if (
-        data?.userBalance !==
-        undefined
-      ) {
-
-        balance =
-          Number(
-            data.userBalance
-          );
-
-      } else {
-
-        /*
-          Emergency UI fallback only.
-          The server remains authoritative.
-        */
-
-        balance =
-          Math.max(
-            0,
-            balance -
-            Number(item.price)
-          );
-
-      }
-
-
-      /*
-        Add to local owned cache.
-      */
-
-      if (
-        !owned.includes(
-          item.id
-        )
-      ) {
-
-        owned.push(
-          item.id
-        );
-
-      }
-
-
-      saveOwned();
-
-      saveBalance();
-
-
-      /*
-        Update UI.
-      */
-
-      renderBalance();
-
-      renderVault();
-
-      updateWalletStats();
-
-      markOwnedUI();
-
-
-      /*
-        Reload server data so editions
-        and balances are fresh.
+        Refresh from server instead
+        of trusting local calculation.
       */
 
       await loadUserFromAPI();
 
-      await loadWallpapers();
+    }
+
+
+    /*
+      Refresh Vault.
+    */
+
+    await syncVault();
+
+
+    /*
+      Refresh marketplace.
+    */
+
+    await loadWallpapers();
+
+
+    renderBalance();
+
+    updateWalletStats();
+
+
+    /*
+      Reopen/update current item.
+    */
+
+    if (
+      currentWallpaper
+    ) {
+
+      const refreshed =
+        wallpapers.find(
+          wallpaper =>
+            String(
+              wallpaper.id
+            ) ===
+            String(
+              currentWallpaper.id
+            )
+        );
+
+
+      if (refreshed) {
+
+        currentWallpaper =
+          refreshed;
+
+      }
+
+    }
+
+
+    markOwnedUI();
+
+
+    showToast(
+      "✓ Wallpaper berhasil masuk Vault!"
+    );
+
+
+    console.log(
+      "WALPAP PURCHASE SUCCESS:",
+      purchase
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "PURCHASE ERROR:",
+      error
+    );
+
+
+    if (
+      error.code ===
+      "INSUFFICIENT_BALANCE"
+    ) {
+
+      showToast(
+        "Saldo WALPAP tidak cukup."
+      );
+
+      await loadUserFromAPI();
+
+      openWallet();
+
+    } else if (
+      error.code ===
+      "ALREADY_PURCHASED"
+    ) {
+
+      showToast(
+        "Wallpaper sudah kamu miliki."
+      );
 
       await syncVault();
 
+    } else if (
+      error.code ===
+      "CREATOR_CANNOT_PURCHASE"
+    ) {
 
       showToast(
-        "✓ Wallpaper berhasil masuk Vault!"
+        "Creator tidak dapat membeli wallpaper sendiri."
       );
 
+    } else if (
+      error.code ===
+      "SOLD_OUT"
+    ) {
 
-      console.log(
-        "WALPAP purchase success:",
-        purchase
+      showToast(
+        "Edition wallpaper sudah habis."
       );
 
+      await loadWallpapers();
 
-      return;
-
-    } catch (error) {
-
-      console.error(
-        "Purchase API error:",
-        error
-      );
-
-
-      /*
-        Do NOT perform local purchase
-        when API is online.
-
-        This prevents fake purchases.
-      */
-
-      if (
-        error.code ===
-        "INSUFFICIENT_BALANCE"
-      ) {
-
-        showToast(
-          "Saldo WALPAP tidak cukup."
-        );
-
-
-        openWallet();
-
-
-        return;
-
-      }
-
-
-      if (
-        error.code ===
-        "ALREADY_PURCHASED"
-      ) {
-
-        showToast(
-          "Wallpaper sudah kamu miliki."
-        );
-
-
-        await syncVault();
-
-
-        return;
-
-      }
-
-
-      if (
-        error.code ===
-        "CREATOR_CANNOT_PURCHASE"
-      ) {
-
-        showToast(
-          "Creator tidak dapat membeli wallpaper sendiri."
-        );
-
-
-        return;
-
-      }
-
+    } else {
 
       showToast(
         error.message ||
         "Pembelian gagal."
       );
 
+    }
 
-      return;
+
+    /*
+      Restore button.
+    */
+
+    if (buyButton) {
+
+      buyButton.disabled =
+        false;
+
+      buyButton.textContent =
+        "BUY NOW";
 
     }
 
   }
 
-
-  /*
-    API OFFLINE
-
-    IMPORTANT:
-    We do NOT perform local purchases anymore.
-
-    A real marketplace must not create
-    purchases only in localStorage.
-  */
-
-  showToast(
-    "WALPAP API sedang offline. Pembelian tidak dapat dilakukan."
-  );
-
 }
 
 
 /* =========================================================
-   MARK OWNED
+   MARK OWNED UI
 ========================================================= */
 
 function markOwnedUI() {
@@ -1587,7 +1927,6 @@ function markOwnedUI() {
 
     buyButton.textContent =
       "OWNED";
-
 
     buyButton.disabled =
       true;
@@ -1608,31 +1947,28 @@ async function toggleFavorite(
   id
 ) {
 
-  const index =
-    favorites.indexOf(id);
-
-
-  if (index >= 0) {
-
-    favorites.splice(
-      index,
-      1
+  const wasLiked =
+    favorites.includes(
+      id
     );
 
 
-    showToast(
-      "Dihapus dari Favorite"
-    );
+  /*
+    Optimistic UI
+  */
+
+  if (wasLiked) {
+
+    favorites =
+      favorites.filter(
+        favoriteId =>
+          favoriteId !== id
+      );
 
   } else {
 
     favorites.push(
       id
-    );
-
-
-    showToast(
-      "♥ Ditambahkan ke Favorite"
     );
 
   }
@@ -1642,18 +1978,11 @@ async function toggleFavorite(
 
   renderWallpapers();
 
-  renderVault();
-
   updateWalletStats();
 
 
   /*
-    Sync API.
-
-    Note:
-    The current API POST /api/favorites
-    is used for adding. Removal depends
-    on the DELETE endpoint contract.
+    API sync
   */
 
   if (
@@ -1663,9 +1992,7 @@ async function toggleFavorite(
 
     try {
 
-      if (
-        index >= 0
-      ) {
+      if (wasLiked) {
 
         await apiRequest(
           "/api/favorites",
@@ -1680,6 +2007,10 @@ async function toggleFavorite(
                   id
               })
           }
+        );
+
+        showToast(
+          "Dihapus dari Favorite"
         );
 
       } else {
@@ -1699,16 +2030,61 @@ async function toggleFavorite(
           }
         );
 
+        showToast(
+          "♥ Ditambahkan ke Favorite"
+        );
+
       }
 
     } catch (error) {
 
-      console.warn(
-        "Favorite API sync failed:",
+      console.error(
+        "FAVORITE API ERROR:",
         error
       );
 
+
+      /*
+        Rollback.
+      */
+
+      if (wasLiked) {
+
+        favorites.push(
+          id
+        );
+
+      } else {
+
+        favorites =
+          favorites.filter(
+            favoriteId =>
+              favoriteId !== id
+          );
+
+      }
+
+
+      saveFavorites();
+
+      renderWallpapers();
+
+      updateWalletStats();
+
+
+      showToast(
+        "Favorite gagal disimpan."
+      );
+
     }
+
+  } else {
+
+    showToast(
+      wasLiked
+        ? "Dihapus dari Favorite"
+        : "♥ Ditambahkan ke Favorite"
+    );
 
   }
 
@@ -1749,162 +2125,213 @@ async function renderVault() {
 
 
   /*
-    Try server vault.
+    API required.
   */
 
   if (
-    userId &&
-    apiOnline
+    !userId ||
+    !apiOnline
   ) {
-
-    try {
-
-      const data =
-        await apiRequest(
-          `/api/vault/${encodeURIComponent(userId)}`
-        );
-
-
-      const serverItems =
-        data?.wallpapers ||
-        data?.items ||
-        data?.data;
-
-
-      if (
-        Array.isArray(
-          serverItems
-        )
-      ) {
-
-        /*
-          Server vault items have:
-          purchase + wallpaper
-
-          Normalize the nested wallpaper.
-        */
-
-        const normalized =
-          serverItems
-            .map(
-              entry => {
-
-                const wallpaper =
-                  entry?.wallpaper ||
-                  entry;
-
-
-                const normalizedWallpaper =
-                  normalizeWallpaper(
-                    wallpaper
-                  );
-
-
-                /*
-                  Preserve purchase metadata.
-                */
-
-                normalizedWallpaper.purchase =
-                  entry?.purchase ||
-                  null;
-
-
-                if (
-                  entry?.purchase?.edition
-                ) {
-
-                  normalizedWallpaper.edition =
-                    entry.purchase.edition;
-
-                }
-
-
-                return normalizedWallpaper;
-
-              }
-            );
-
-
-        if (
-          normalized.length
-        ) {
-
-          row.innerHTML =
-            normalized
-              .map(
-                vaultCard
-              )
-              .join("");
-
-
-          return;
-
-        }
-
-        /*
-          Valid server vault but empty.
-        */
-
-        row.innerHTML = `
-          <div class="vault-empty">
-            💎 Your Vault is empty.<br>
-            Buy your first rare wallpaper.
-          </div>
-        `;
-
-
-        return;
-
-      }
-
-    } catch (error) {
-
-      console.warn(
-        "Vault API failed:",
-        error
-      );
-
-    }
-
-  }
-
-
-  /*
-    Local cache vault.
-
-    Used only as visual fallback.
-  */
-
-  const items =
-    wallpapers.filter(
-      item =>
-        owned.includes(
-          item.id
-        )
-    );
-
-
-  if (!items.length) {
 
     row.innerHTML = `
       <div class="vault-empty">
-        💎 Your Vault is empty.<br>
-        Buy your first rare wallpaper.
+        Connecting to WALPAP Vault...
       </div>
     `;
-
 
     return;
 
   }
 
 
-  row.innerHTML =
-    items
-      .map(
-        vaultCard
+  try {
+
+    const data =
+      await apiRequest(
+        `/api/vault/${encodeURIComponent(userId)}`
+      );
+
+
+    console.log(
+      "VAULT RESPONSE:",
+      data
+    );
+
+
+    const serverItems =
+      Array.isArray(data)
+        ? data
+        : data?.vault ||
+          data?.wallpapers ||
+          data?.items ||
+          data?.data ||
+          [];
+
+
+    if (
+      !Array.isArray(
+        serverItems
       )
-      .join("");
+    ) {
+
+      throw new Error(
+        "Format Vault API tidak valid."
+      );
+
+    }
+
+
+    /*
+      Empty vault.
+    */
+
+    if (
+      serverItems.length === 0
+    ) {
+
+      owned = [];
+
+      saveOwned();
+
+      updateWalletStats();
+
+
+      row.innerHTML = `
+        <div class="vault-empty">
+          💎 Your Vault is empty.<br>
+          Buy your first rare wallpaper.
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    /*
+      Normalize nested purchase + wallpaper.
+    */
+
+    const vaultItems =
+      serverItems
+        .map(
+          entry => {
+
+            const wallpaper =
+              entry?.wallpaper ||
+              entry;
+
+
+            const purchase =
+              entry?.purchase ||
+              {};
+
+
+            const item =
+              normalizeWallpaper(
+                wallpaper
+              );
+
+
+            item.purchase =
+              purchase;
+
+
+            item.purchaseId =
+              purchase.id ||
+              null;
+
+
+            /*
+              Edition from purchase.
+            */
+
+            if (
+              purchase.edition
+            ) {
+
+              item.edition =
+                purchase.edition;
+
+            } else if (
+              purchase.editionNumber !==
+              undefined
+            ) {
+
+              const limit =
+                wallpaper.editionLimit ??
+                wallpaper.editionSize ??
+                10000;
+
+
+              item.edition =
+                `#${String(
+                  purchase.editionNumber
+                ).padStart(
+                  5,
+                  "0"
+                )} / ${limit}`;
+
+            }
+
+
+            return item;
+
+          }
+        )
+        .filter(
+          item =>
+            item.id
+        );
+
+
+    /*
+      Server is source of truth for ownership.
+    */
+
+    owned =
+      Array.from(
+        new Set(
+          vaultItems.map(
+            item =>
+              item.id
+          )
+        )
+      );
+
+
+    saveOwned();
+
+    updateWalletStats();
+
+
+    /*
+      Render Vault.
+    */
+
+    row.innerHTML =
+      vaultItems
+        .map(
+          vaultCard
+        )
+        .join("");
+
+
+  } catch (error) {
+
+    console.error(
+      "VAULT RENDER ERROR:",
+      error
+    );
+
+
+    row.innerHTML = `
+      <div class="vault-empty">
+        Unable to load WALPAP Vault.
+      </div>
+    `;
+
+  }
 
 }
 
@@ -1933,44 +2360,65 @@ async function syncVault() {
       );
 
 
+    console.log(
+      "VAULT SYNC:",
+      data
+    );
+
+
     const serverItems =
-      data?.wallpapers ||
-      data?.items ||
-      data?.data ||
-      [];
+      Array.isArray(data)
+        ? data
+        : data?.vault ||
+          data?.wallpapers ||
+          data?.items ||
+          data?.data ||
+          [];
 
 
     if (
-      Array.isArray(
+      !Array.isArray(
         serverItems
       )
     ) {
 
-      const serverOwned =
-        serverItems
-          .map(
-            entry =>
-              entry?.wallpaper?.id ||
-              entry?.wallpaperId ||
-              entry?.id
-          )
-          .filter(Boolean);
-
-
-      owned =
-        Array.from(
-          new Set(
-            serverOwned
-          )
-        );
-
-
-      saveOwned();
-
-
-      updateWalletStats();
+      return;
 
     }
+
+
+    const serverOwned =
+      serverItems
+        .map(
+          entry => {
+
+            const wallpaper =
+              entry?.wallpaper ||
+              null;
+
+
+            return (
+              wallpaper?.id ||
+              entry?.wallpaperId ||
+              null
+            );
+
+          }
+        )
+        .filter(Boolean);
+
+
+    owned =
+      Array.from(
+        new Set(
+          serverOwned
+        )
+      );
+
+
+    saveOwned();
+
+    updateWalletStats();
 
 
     await renderVault();
@@ -1978,8 +2426,8 @@ async function syncVault() {
 
   } catch (error) {
 
-    console.warn(
-      "Vault sync failed:",
+    console.error(
+      "VAULT SYNC ERROR:",
       error
     );
 
@@ -2006,6 +2454,7 @@ function vaultCard(
         src="${escapeAttribute(item.image)}"
         alt="${escapeAttribute(item.title)}"
         loading="lazy"
+        onerror="this.style.display='none'"
       >
 
     </div>
@@ -2050,38 +2499,33 @@ async function setCurrentWallpaper(
     return;
 
 
+  /*
+    Verify ownership with server.
+  */
+
+  await syncVault();
+
+
   if (
     !owned.includes(
       currentWallpaper.id
     )
   ) {
 
-    /*
-      Double-check server vault.
-    */
+    showToast(
+      "Beli wallpaper terlebih dahulu."
+    );
 
-    await syncVault();
-
-
-    if (
-      !owned.includes(
-        currentWallpaper.id
-      )
-    ) {
-
-      showToast(
-        "Beli wallpaper terlebih dahulu."
-      );
-
-
-      return;
-
-    }
+    return;
 
   }
 
 
   try {
+
+    /*
+      Capacitor native plugin
+    */
 
     if (
       window.Capacitor &&
@@ -2089,44 +2533,41 @@ async function setCurrentWallpaper(
       window.Capacitor.Plugins.WalpapWallpaper
     ) {
 
+      const plugin =
+        window.Capacitor
+          .Plugins
+          .WalpapWallpaper;
+
+
       if (
         target === "both"
       ) {
 
-        await window.Capacitor
-          .Plugins
-          .WalpapWallpaper
-          .setWallpaper({
-            url:
-              currentWallpaper.image,
+        await plugin.setWallpaper({
+          url:
+            currentWallpaper.image,
 
-            target:
-              "home"
-          });
+          target:
+            "home"
+        });
 
 
-        await window.Capacitor
-          .Plugins
-          .WalpapWallpaper
-          .setWallpaper({
-            url:
-              currentWallpaper.image,
+        await plugin.setWallpaper({
+          url:
+            currentWallpaper.image,
 
-            target:
-              "lock"
-          });
+          target:
+            "lock"
+        });
 
       } else {
 
-        await window.Capacitor
-          .Plugins
-          .WalpapWallpaper
-          .setWallpaper({
-            url:
-              currentWallpaper.image,
+        await plugin.setWallpaper({
+          url:
+            currentWallpaper.image,
 
-            target
-          });
+          target
+        });
 
       }
 
@@ -2149,6 +2590,19 @@ async function setCurrentWallpaper(
       Browser fallback.
     */
 
+    if (
+      !currentWallpaper.image
+    ) {
+
+      showToast(
+        "URL gambar tidak tersedia."
+      );
+
+      return;
+
+    }
+
+
     const link =
       document.createElement(
         "a"
@@ -2160,12 +2614,19 @@ async function setCurrentWallpaper(
 
 
     link.download =
-      currentWallpaper.title +
+      (
+        currentWallpaper.title ||
+        "walpap"
+      ) +
       ".jpg";
 
 
     link.target =
       "_blank";
+
+
+    link.rel =
+      "noopener";
 
 
     document.body.appendChild(
@@ -2187,6 +2648,7 @@ async function setCurrentWallpaper(
   } catch (error) {
 
     console.error(
+      "SET WALLPAPER ERROR:",
       error
     );
 
@@ -2207,14 +2669,10 @@ async function setCurrentWallpaper(
 async function openWallet() {
 
   /*
-    Always refresh balance before showing wallet.
+    Always use server balance.
   */
 
-  if (userId && apiOnline) {
-
-    await loadUserFromAPI();
-
-  }
+  await loadUserFromAPI();
 
 
   renderBalance();
@@ -2265,24 +2723,14 @@ function closeWallet() {
 function topUp() {
 
   /*
-    IMPORTANT:
+    Backend saat ini belum memiliki endpoint
+    top-up saldo user yang sudah ada.
 
-    This is intentionally NOT a fake balance
-    increase anymore.
-
-    Real top-up must be processed by a
-    payment gateway / server.
-
-    Future:
-      QRIS
-      Midtrans
-      Xendit
-      DOKU
-      Bank Transfer
+    Jangan membuat saldo palsu di browser.
   */
 
   showToast(
-    "Top Up resmi WALPAP akan segera tersedia."
+    "Top Up resmi WALPAP belum tersedia."
   );
 
 }
@@ -2374,7 +2822,7 @@ function openSearch() {
 
 
   setTimeout(
-    () => {
+    function () {
 
       const input =
         document.getElementById(
@@ -2418,7 +2866,7 @@ function closeSearch() {
 
 
 /* =========================================================
-   SEARCH
+   SEARCH WALLPAPERS
 ========================================================= */
 
 function searchWallpapers() {
@@ -2435,8 +2883,14 @@ function searchWallpapers() {
     );
 
 
-  if (!input || !results)
+  if (
+    !input ||
+    !results
+  ) {
+
     return;
+
+  }
 
 
   const query =
@@ -2447,21 +2901,29 @@ function searchWallpapers() {
 
   const list =
     query
+
       ? wallpapers.filter(
           item =>
-            item.title
+
+            String(
+              item.title
+            )
               .toLowerCase()
               .includes(
                 query
               ) ||
 
-            item.creator
+            String(
+              item.creator
+            )
               .toLowerCase()
               .includes(
                 query
               ) ||
 
-            item.rarity
+            String(
+              item.rarity
+            )
               .toLowerCase()
               .includes(
                 query
@@ -2481,7 +2943,6 @@ function searchWallpapers() {
         No wallpaper found.
       </div>
     `;
-
 
     return;
 
@@ -2542,7 +3003,7 @@ function openSearchResult(
 
 
   setTimeout(
-    () => {
+    function () {
 
       openDetail(
         id
@@ -2598,7 +3059,7 @@ function closeCreator() {
 
 
 /* =========================================================
-   CREATOR PUBLISH
+   PUBLISH WALLPAPER
 ========================================================= */
 
 async function publishWallpaper() {
@@ -2637,7 +3098,6 @@ async function publishWallpaper() {
       "Masukkan nama wallpaper."
     );
 
-
     return;
 
   }
@@ -2648,7 +3108,6 @@ async function publishWallpaper() {
     showToast(
       "Masukkan URL gambar."
     );
-
 
     return;
 
@@ -2664,131 +3123,127 @@ async function publishWallpaper() {
       "Harga tidak valid."
     );
 
+    return;
+
+  }
+
+
+  if (
+    !userId ||
+    !apiOnline
+  ) {
+
+    showToast(
+      "WALPAP API sedang offline."
+    );
 
     return;
 
   }
 
 
-  /*
-    API CREATOR
-  */
+  try {
 
-  if (
-    userId &&
-    apiOnline
-  ) {
+    const data =
+      await apiRequest(
+        "/api/wallpapers",
+        {
+          method: "POST",
 
-    try {
+          body:
+            JSON.stringify({
 
-      const data =
-        await apiRequest(
-          "/api/wallpapers",
-          {
-            method: "POST",
+              creatorId:
+                userId,
 
-            body:
-              JSON.stringify({
+              creator:
+                username,
 
-                creatorId:
-                  userId,
+              title,
 
-                creator:
-                  username,
-
-                title,
-
+              imageUrl:
                 image,
 
-                price,
+              image:
+                image,
 
-                rarity:
-                  "rare",
+              price,
 
-                editionSize:
-                  10000
+              rarity:
+                "rare",
 
-              })
-          }
-        );
+              editionLimit:
+                10000,
 
+              editionSize:
+                10000
 
-      const created =
-        data?.wallpaper ||
-        data?.data ||
-        data;
-
-
-      if (
-        created?.id
-      ) {
-
-        wallpapers.unshift(
-          normalizeWallpaper(
-            created
-          )
-        );
-
-
-      } else {
-
-        await loadWallpapers();
-
-      }
-
-
-      renderWallpapers();
-
-      closeCreator();
-
-      clearCreatorForm();
-
-
-      showToast(
-        "✓ Wallpaper berhasil dipublish!"
+            })
+        }
       );
 
 
-      return;
+    console.log(
+      "PUBLISH RESPONSE:",
+      data
+    );
 
-    } catch (error) {
 
-      console.error(
-        "Publish API error:",
-        error
+    const created =
+      data?.wallpaper ||
+      data?.data ||
+      data;
+
+
+    if (
+      created?.id
+    ) {
+
+      wallpapers.unshift(
+        normalizeWallpaper(
+          created
+        )
       );
 
+    } else {
 
-      showToast(
-        error.message ||
-        "Gagal mempublish wallpaper."
-      );
-
-
-      return;
+      await loadWallpapers();
 
     }
 
+
+    renderWallpapers();
+
+    closeCreator();
+
+    clearCreatorForm();
+
+
+    showToast(
+      "✓ Wallpaper berhasil dipublish!"
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "PUBLISH ERROR:",
+      error
+    );
+
+
+    showToast(
+      error.message ||
+      "Gagal mempublish wallpaper."
+    );
+
   }
-
-
-  /*
-    DO NOT create fake local creator
-    inventory anymore.
-
-    A real marketplace should publish
-    through the API.
-  */
-
-  showToast(
-    "WALPAP API sedang offline. Publish tidak dapat dilakukan."
-  );
 
 }
 
 
 /* =========================================================
-   CLEAR CREATOR FORM
+   CLEAR CREATOR
 ========================================================= */
 
 function clearCreatorForm() {
@@ -2831,17 +3286,9 @@ function clearCreatorForm() {
 
 async function openProfile() {
 
+  await loadUserFromAPI();
+
   updateWalletStats();
-
-
-  if (
-    userId &&
-    apiOnline
-  ) {
-
-    await loadUserFromAPI();
-
-  }
 
 
   const modal =
@@ -2971,7 +3418,7 @@ function showToast(
 
   toastTimer =
     setTimeout(
-      () => {
+      function () {
 
         toast.classList.remove(
           "show"
@@ -3040,7 +3487,36 @@ function escapeAttribute(
 
 
 /* =========================================================
-   DEBUG HELPERS
+   KEYBOARD
+========================================================= */
+
+document.addEventListener(
+  "keydown",
+  function (event) {
+
+    if (
+      event.key ===
+      "Escape"
+    ) {
+
+      closeDetail();
+
+      closeWallet();
+
+      closeSearch();
+
+      closeCreator();
+
+      closeProfile();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   DEBUG
 ========================================================= */
 
 window.WALPAP = {
@@ -3062,6 +3538,27 @@ window.WALPAP = {
   getBalance() {
 
     return balance;
+
+  },
+
+
+  getOwned() {
+
+    return owned.slice();
+
+  },
+
+
+  getFavorites() {
+
+    return favorites.slice();
+
+  },
+
+
+  getWallpapers() {
+
+    return wallpapers.slice();
 
   },
 
@@ -3091,6 +3588,32 @@ window.WALPAP = {
 
     return await syncVault();
 
+  },
+
+
+  async refreshAll() {
+
+    await checkAPI();
+
+    await initializeUser();
+
+    await loadUserFromAPI();
+
+    await loadWallpapers();
+
+    await syncVault();
+
+    renderBalance();
+
+    renderWallpapers();
+
+    updateWalletStats();
+
   }
 
 };
+
+
+/* =========================================================
+   END WALPAP V6
+========================================================= */
