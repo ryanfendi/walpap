@@ -64,12 +64,12 @@ import {
    ========================================================= */
 
 const firebaseConfig = {
-  apiKey: "GANTI_API_KEY",
-  authDomain: "PROJECT_ID.firebaseapp.com",
-  projectId: "PROJECT_ID",
-  storageBucket: "PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "GANTI_MESSAGING_SENDER_ID",
-  appId: "GANTI_APP_ID"
+  apiKey: "AIzaSyAr6hebgw-T4Tr3gWZEXwJ1PycC8mVQt4k",
+  authDomain: "walpape.firebaseapp.com",
+  projectId: "walpape",
+  storageBucket: "walpape.firebasestorage.app",
+  messagingSenderId: "131497116491",
+  appId: "1:131497116491:web:ae4a406c0fc50b6f23dece"
 };
 
 
