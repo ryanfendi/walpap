@@ -1373,21 +1373,11 @@ async function publishWallpaper() {
 
 
   const title =
-    document
-      .getElementById(
-        "creatorTitle"
-      )
-      ?.value
-      .trim();
+  document.getElementById("creatorTitleInput")?.value.trim() || "";
 
 
-  const image =
-    document
-      .getElementById(
-        "creatorImage"
-      )
-      ?.value
-      .trim();
+  const imageUrl =
+  document.getElementById("creatorImage")?.value.trim() || "";
 
 
   const price =
