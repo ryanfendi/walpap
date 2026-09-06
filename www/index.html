@@ -1,396 +1,2310 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
   >
 
-  <meta name="theme-color" content="#050816">
+  <meta name="theme-color" content="#09090b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <title>WALPAP</title>
+  <meta
+    name="description"
+    content="WALPAP — Premium Digital Wallpaper Marketplace"
+  >
 
-  <link rel="stylesheet" href="style.css">
+  <title>WALPAP — Premium Wallpaper</title>
+
+  <style>
+    /* =========================================================
+       WALPAP
+       Premium Digital Wallpaper Marketplace
+       Firestore Frontend
+       ========================================================= */
+
+    :root {
+      --bg: #09090b;
+      --bg-soft: #111114;
+      --panel: #151519;
+      --panel-2: #1b1b21;
+
+      --text: #ffffff;
+      --text-soft: #a1a1aa;
+      --text-muted: #71717a;
+
+      --line: rgba(255,255,255,.08);
+      --line-strong: rgba(255,255,255,.14);
+
+      --accent: #ffffff;
+      --accent-dark: #d4d4d8;
+
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+
+      --radius-sm: 10px;
+      --radius: 16px;
+      --radius-lg: 24px;
+
+      --max-width: 1180px;
+
+      --shadow:
+        0 20px 60px rgba(0,0,0,.45);
+
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+
+      background:
+        radial-gradient(
+          circle at 50% -20%,
+          rgba(255,255,255,.06),
+          transparent 35%
+        ),
+        var(--bg);
+
+      color: var(--text);
+
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+
+      overflow-x: hidden;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    ::selection {
+      background: #fff;
+      color: #000;
+    }
+
+    /* =========================================================
+       HEADER
+       ========================================================= */
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+
+      width: 100%;
+
+      background: rgba(9,9,11,.82);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+
+      border-bottom: 1px solid var(--line);
+    }
+
+    .topbar-inner {
+      max-width: var(--max-width);
+      margin: auto;
+
+      min-height: 70px;
+
+      padding:
+        10px 20px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+
+      border-radius: 12px;
+
+      background: #fff;
+      color: #000;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: -1px;
+
+      box-shadow: 0 8px 25px rgba(255,255,255,.08);
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: .08em;
+    }
+
+    .brand-subtitle {
+      margin-top: 2px;
+
+      color: var(--text-muted);
+
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+
+      border-radius: 13px;
+
+      background: rgba(255,255,255,.06);
+      color: #fff;
+
+      border: 1px solid var(--line);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 18px;
+
+      transition:
+        transform .18s ease,
+        background .18s ease;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255,255,255,.1);
+    }
+
+    .icon-btn:active {
+      transform: scale(.94);
+    }
+
+    /* =========================================================
+       APP
+       ========================================================= */
+
+    .app {
+      width: 100%;
+      max-width: var(--max-width);
+
+      margin: auto;
+
+      padding:
+        22px 20px
+        calc(100px + var(--safe-bottom));
+    }
+
+    /* =========================================================
+       STATUS
+       ========================================================= */
+
+    .statusbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 10px;
+
+      margin-bottom: 20px;
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      color: var(--text-muted);
+
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+
+      border-radius: 50%;
+
+      background: var(--warning);
+
+      box-shadow:
+        0 0 0 4px rgba(245,158,11,.08);
+    }
+
+    .status-dot.online {
+      background: var(--success);
+
+      box-shadow:
+        0 0 0 4px rgba(34,197,94,.08);
+    }
+
+    .status-dot.offline {
+      background: var(--danger);
+
+      box-shadow:
+        0 0 0 4px rgba(239,68,68,.08);
+    }
+
+    .user-balance {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+
+      padding: 8px 12px;
+
+      border-radius: 999px;
+
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--line);
+
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .balance-icon {
+      font-size: 13px;
+    }
+
+    /* =========================================================
+       HERO
+       ========================================================= */
+
+    .hero {
+      position: relative;
+
+      overflow: hidden;
+
+      padding: 32px 28px;
+
+      margin-bottom: 28px;
+
+      border-radius: var(--radius-lg);
+
+      border: 1px solid var(--line);
+
+      background:
+        radial-gradient(
+          circle at 90% 20%,
+          rgba(255,255,255,.10),
+          transparent 30%
+        ),
+        linear-gradient(
+          135deg,
+          #17171c,
+          #0f0f12
+        );
+
+      box-shadow: var(--shadow);
+    }
+
+    .hero::before {
+      content: "";
+
+      position: absolute;
+
+      width: 180px;
+      height: 180px;
+
+      right: -60px;
+      bottom: -80px;
+
+      border-radius: 50%;
+
+      background: rgba(255,255,255,.04);
+
+      filter: blur(5px);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+
+      max-width: 650px;
+    }
+
+    .hero-label {
+      display: inline-flex;
+
+      padding: 7px 11px;
+
+      margin-bottom: 14px;
+
+      border-radius: 999px;
+
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--line);
+
+      color: #d4d4d8;
+
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      margin: 0;
+
+      font-size: clamp(30px, 6vw, 58px);
+
+      line-height: .98;
+
+      letter-spacing: -.05em;
+    }
+
+    .hero p {
+      margin: 17px 0 0;
+
+      max-width: 560px;
+
+      color: var(--text-soft);
+
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+
+      gap: 10px;
+
+      margin-top: 22px;
+    }
+
+    /* =========================================================
+       BUTTONS
+       ========================================================= */
+
+    .btn {
+      min-height: 44px;
+
+      padding: 0 17px;
+
+      border-radius: 12px;
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      font-size: 13px;
+      font-weight: 850;
+
+      transition:
+        transform .18s ease,
+        opacity .18s ease,
+        background .18s ease;
+    }
+
+    .btn:active {
+      transform: scale(.97);
+    }
+
+    .btn-primary {
+      background: #fff;
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      background: #e4e4e7;
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,.07);
+      color: #fff;
+
+      border: 1px solid var(--line);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,.11);
+    }
+
+    .btn-danger {
+      background: rgba(239,68,68,.12);
+      color: #fca5a5;
+
+      border: 1px solid rgba(239,68,68,.2);
+    }
+
+    .btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    /* =========================================================
+       SECTION
+       ========================================================= */
+
+    .section {
+      margin-top: 30px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+
+      gap: 15px;
+
+      margin-bottom: 15px;
+    }
+
+    .section-title {
+      margin: 0;
+
+      font-size: 20px;
+      font-weight: 900;
+
+      letter-spacing: -.03em;
+    }
+
+    .section-description {
+      margin: 5px 0 0;
+
+      color: var(--text-muted);
+
+      font-size: 12px;
+    }
+
+    .section-action {
+      color: var(--text-soft);
+
+      font-size: 12px;
+      font-weight: 800;
+
+      background: none;
+    }
+
+    /* =========================================================
+       FILTER
+       ========================================================= */
+
+    .filters {
+      display: flex;
+      gap: 8px;
+
+      overflow-x: auto;
+
+      padding-bottom: 5px;
+
+      margin-bottom: 18px;
+
+      scrollbar-width: none;
+    }
+
+    .filters::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter {
+      flex: 0 0 auto;
+
+      min-height: 34px;
+
+      padding: 0 13px;
+
+      border-radius: 999px;
+
+      color: var(--text-muted);
+
+      background: rgba(255,255,255,.04);
+
+      border: 1px solid var(--line);
+
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .filter.active {
+      color: #000;
+      background: #fff;
+      border-color: #fff;
+    }
+
+    /* =========================================================
+       WALLPAPER GRID
+       ========================================================= */
+
+    .wallpaper-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+      gap: 14px;
+    }
+
+    .wall-card {
+      position: relative;
+
+      overflow: hidden;
+
+      border-radius: 18px;
+
+      background: var(--panel);
+
+      border: 1px solid var(--line);
+
+      cursor: pointer;
+
+      transition:
+        transform .2s ease,
+        border-color .2s ease;
+    }
+
+    .wall-card:hover {
+      transform: translateY(-3px);
+
+      border-color: var(--line-strong);
+    }
+
+    .wall-image-wrap {
+      position: relative;
+
+      aspect-ratio: 9 / 16;
+
+      background: #18181b;
+
+      overflow: hidden;
+    }
+
+    .wall-image {
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+
+      transition: transform .35s ease;
+    }
+
+    .wall-card:hover .wall-image {
+      transform: scale(1.035);
+    }
+
+    .wall-overlay {
+      position: absolute;
+
+      inset: 0;
+
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(0,0,0,.25),
+          transparent 35%,
+          rgba(0,0,0,.55)
+        );
+
+      pointer-events: none;
+    }
+
+    .wall-top {
+      position: absolute;
+
+      top: 10px;
+      left: 10px;
+      right: 10px;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .rarity-badge,
+    .owned-badge {
+      display: inline-flex;
+
+      padding: 6px 8px;
+
+      border-radius: 999px;
+
+      background: rgba(0,0,0,.58);
+
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+
+      border: 1px solid rgba(255,255,255,.12);
+
+      font-size: 9px;
+      font-weight: 900;
+
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .owned-badge {
+      color: #86efac;
+    }
+
+    .wall-bottom {
+      position: absolute;
+
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+    }
+
+    .wall-title {
+      margin: 0;
+
+      font-size: 14px;
+      font-weight: 900;
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .wall-creator {
+      margin-top: 4px;
+
+      color: rgba(255,255,255,.68);
+
+      font-size: 10px;
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .wall-info {
+      padding: 11px;
+    }
+
+    .wall-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      gap: 8px;
+    }
+
+    .wall-price {
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .wall-edition {
+      color: var(--text-muted);
+
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .favorite-small {
+      width: 30px;
+      height: 30px;
+
+      border-radius: 9px;
+
+      background: rgba(255,255,255,.06);
+      color: #fff;
+
+      border: 1px solid var(--line);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 14px;
+    }
+
+    .favorite-small.active {
+      color: #fff;
+      background: rgba(255,255,255,.14);
+    }
+
+    /* =========================================================
+       EMPTY
+       ========================================================= */
+
+    .empty-state {
+      grid-column: 1 / -1;
+
+      padding: 55px 20px;
+
+      border-radius: 18px;
+
+      border: 1px dashed var(--line-strong);
+
+      background: rgba(255,255,255,.025);
+
+      text-align: center;
+    }
+
+    .empty-icon {
+      font-size: 30px;
+
+      margin-bottom: 12px;
+
+      opacity: .7;
+    }
+
+    .empty-title {
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .empty-text {
+      margin-top: 7px;
+
+      color: var(--text-muted);
+
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    /* =========================================================
+       VAULT
+       ========================================================= */
+
+    .vault-row {
+      display: grid;
+
+      grid-template-columns:
+        repeat(5, minmax(0, 1fr));
+
+      gap: 12px;
+    }
+
+    .vault-card {
+      overflow: hidden;
+
+      border-radius: 15px;
+
+      background: var(--panel);
+
+      border: 1px solid var(--line);
+
+      cursor: pointer;
+    }
+
+    .vault-image {
+      width: 100%;
+
+      aspect-ratio: 9 / 16;
+
+      object-fit: cover;
+    }
+
+    .vault-info {
+      padding: 10px;
+    }
+
+    .vault-title {
+      font-size: 11px;
+      font-weight: 850;
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .vault-edition {
+      margin-top: 4px;
+
+      color: var(--text-muted);
+
+      font-size: 9px;
+    }
+
+    .vault-empty {
+      grid-column: 1 / -1;
+
+      padding: 30px;
+
+      text-align: center;
+
+      border: 1px dashed var(--line);
+
+      border-radius: 16px;
+
+      color: var(--text-muted);
+
+      font-size: 12px;
+    }
+
+    /* =========================================================
+       BOTTOM NAV
+       ========================================================= */
+
+    .bottom-nav {
+      position: fixed;
+
+      left: 50%;
+      bottom: 12px;
+
+      transform: translateX(-50%);
+
+      z-index: 150;
+
+      width: min(
+        calc(100% - 24px),
+        520px
+      );
+
+      padding: 7px;
+
+      border-radius: 20px;
+
+      background: rgba(20,20,23,.9);
+
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+
+      border: 1px solid var(--line-strong);
+
+      box-shadow:
+        0 18px 50px rgba(0,0,0,.55);
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(4, 1fr);
+    }
+
+    .nav-item {
+      min-height: 50px;
+
+      border-radius: 14px;
+
+      background: transparent;
+
+      color: var(--text-muted);
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      gap: 3px;
+
+      font-size: 18px;
+    }
+
+    .nav-label {
+      font-size: 9px;
+      font-weight: 800;
+    }
+
+    .nav-item.active {
+      color: #fff;
+
+      background: rgba(255,255,255,.08);
+    }
+
+    /* =========================================================
+       MODAL
+       ========================================================= */
+
+    .modal {
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 500;
+
+      display: none;
+
+      align-items: center;
+      justify-content: center;
+
+      padding: 20px;
+
+      background: rgba(0,0,0,.78);
+
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-panel {
+      position: relative;
+
+      width: min(100%, 560px);
+
+      max-height: min(90vh, 850px);
+
+      overflow-y: auto;
+
+      border-radius: 24px;
+
+      background: #121216;
+
+      border: 1px solid var(--line-strong);
+
+      box-shadow: 0 30px 100px rgba(0,0,0,.7);
+
+      animation: modalIn .18s ease;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-close {
+      position: absolute;
+
+      top: 12px;
+      right: 12px;
+
+      z-index: 5;
+
+      width: 38px;
+      height: 38px;
+
+      border-radius: 12px;
+
+      background: rgba(0,0,0,.55);
+
+      color: #fff;
+
+      border: 1px solid rgba(255,255,255,.1);
+
+      font-size: 18px;
+    }
+
+    .modal-body {
+      padding: 22px;
+    }
+
+    .modal-title {
+      margin: 0;
+
+      font-size: 21px;
+      font-weight: 900;
+
+      letter-spacing: -.03em;
+    }
+
+    .modal-subtitle {
+      margin-top: 5px;
+
+      color: var(--text-muted);
+
+      font-size: 12px;
+    }
+
+    /* =========================================================
+       DETAIL MODAL
+       ========================================================= */
+
+    .detail-image-wrap {
+      position: relative;
+
+      width: 100%;
+
+      max-height: 65vh;
+
+      background: #09090b;
+
+      overflow: hidden;
+
+      border-radius: 24px 24px 0 0;
+    }
+
+    .detail-image {
+      width: 100%;
+
+      max-height: 65vh;
+
+      object-fit: contain;
+    }
+
+    .detail-content {
+      padding: 20px;
+    }
+
+    .detail-rarity {
+      display: inline-flex;
+
+      margin-bottom: 9px;
+
+      padding: 6px 9px;
+
+      border-radius: 999px;
+
+      background: rgba(255,255,255,.07);
+
+      border: 1px solid var(--line);
+
+      color: var(--text-soft);
+
+      font-size: 9px;
+      font-weight: 900;
+
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    .detail-title {
+      margin: 0;
+
+      font-size: 24px;
+      font-weight: 950;
+
+      letter-spacing: -.04em;
+    }
+
+    .detail-creator {
+      margin-top: 7px;
+
+      color: var(--text-muted);
+
+      font-size: 12px;
+    }
+
+    .detail-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(2, 1fr);
+
+      gap: 9px;
+
+      margin-top: 18px;
+    }
+
+    .detail-stat {
+      padding: 12px;
+
+      border-radius: 13px;
+
+      background: rgba(255,255,255,.04);
+
+      border: 1px solid var(--line);
+    }
+
+    .detail-stat-label {
+      color: var(--text-muted);
+
+      font-size: 9px;
+      font-weight: 700;
+
+      text-transform: uppercase;
+    }
+
+    .detail-stat-value {
+      margin-top: 4px;
+
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .detail-price {
+      margin-top: 18px;
+
+      font-size: 25px;
+      font-weight: 950;
+    }
+
+    .detail-actions {
+      display: flex;
+
+      gap: 8px;
+
+      margin-top: 18px;
+    }
+
+    .detail-actions .btn {
+      flex: 1;
+    }
+
+    /* =========================================================
+       WALLET
+       ========================================================= */
+
+    .wallet-card {
+      padding: 20px;
+
+      border-radius: 18px;
+
+      background:
+        radial-gradient(
+          circle at 90% 10%,
+          rgba(255,255,255,.12),
+          transparent 35%
+        ),
+        #18181d;
+
+      border: 1px solid var(--line);
+    }
+
+    .wallet-label {
+      color: var(--text-muted);
+
+      font-size: 10px;
+      font-weight: 800;
+
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    .wallet-balance {
+      margin-top: 7px;
+
+      font-size: 32px;
+      font-weight: 950;
+
+      letter-spacing: -.04em;
+    }
+
+    .wallet-actions {
+      display: grid;
+
+      grid-template-columns:
+        repeat(2, 1fr);
+
+      gap: 8px;
+
+      margin-top: 18px;
+    }
+
+    .wallet-info {
+      margin-top: 16px;
+
+      padding: 12px;
+
+      border-radius: 12px;
+
+      background: rgba(245,158,11,.07);
+
+      border: 1px solid rgba(245,158,11,.12);
+
+      color: #d4d4d8;
+
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    /* =========================================================
+       SEARCH
+       ========================================================= */
+
+    .search-box {
+      display: flex;
+
+      align-items: center;
+
+      gap: 8px;
+
+      padding: 0 13px;
+
+      min-height: 46px;
+
+      border-radius: 13px;
+
+      background: rgba(255,255,255,.05);
+
+      border: 1px solid var(--line);
+    }
+
+    .search-box span {
+      color: var(--text-muted);
+    }
+
+    .search-box input {
+      flex: 1;
+
+      min-width: 0;
+
+      background: transparent;
+
+      border: 0;
+      outline: 0;
+
+      color: #fff;
+
+      font-size: 14px;
+    }
+
+    .search-box input::placeholder {
+      color: #52525b;
+    }
+
+    .search-results {
+      margin-top: 15px;
+
+      display: grid;
+
+      gap: 8px;
+    }
+
+    .search-result {
+      display: flex;
+
+      align-items: center;
+
+      gap: 10px;
+
+      padding: 9px;
+
+      border-radius: 13px;
+
+      background: rgba(255,255,255,.04);
+
+      border: 1px solid var(--line);
+
+      cursor: pointer;
+    }
+
+    .search-result img {
+      width: 48px;
+      height: 64px;
+
+      border-radius: 8px;
+
+      object-fit: cover;
+    }
+
+    .search-result-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .search-result-title {
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .search-result-creator {
+      margin-top: 4px;
+
+      color: var(--text-muted);
+
+      font-size: 10px;
+    }
+
+    /* =========================================================
+       CREATOR
+       ========================================================= */
+
+    .form-group {
+      margin-top: 14px;
+    }
+
+    .form-label {
+      display: block;
+
+      margin-bottom: 7px;
+
+      color: var(--text-soft);
+
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .input,
+    .textarea,
+    .select {
+      width: 100%;
+
+      padding: 12px 13px;
+
+      border-radius: 12px;
+
+      color: #fff;
+
+      background: rgba(255,255,255,.045);
+
+      border: 1px solid var(--line);
+
+      outline: none;
+    }
+
+    .input:focus,
+    .textarea:focus,
+    .select:focus {
+      border-color: rgba(255,255,255,.25);
+    }
+
+    .textarea {
+      min-height: 100px;
+
+      resize: vertical;
+    }
+
+    .creator-preview {
+      display: none;
+
+      margin-top: 10px;
+
+      overflow: hidden;
+
+      border-radius: 14px;
+
+      border: 1px solid var(--line);
+    }
+
+    .creator-preview.show {
+      display: block;
+    }
+
+    .creator-preview img {
+      width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      background: #09090b;
+    }
+
+    .form-actions {
+      display: flex;
+
+      gap: 8px;
+
+      margin-top: 20px;
+    }
+
+    .form-actions .btn {
+      flex: 1;
+    }
+
+    /* =========================================================
+       PROFILE
+       ========================================================= */
+
+    .profile-head {
+      display: flex;
+      align-items: center;
+
+      gap: 14px;
+
+      padding: 16px;
+
+      border-radius: 16px;
+
+      background: rgba(255,255,255,.04);
+
+      border: 1px solid var(--line);
+    }
+
+    .profile-avatar {
+      width: 54px;
+      height: 54px;
+
+      border-radius: 17px;
+
+      background: #fff;
+      color: #000;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 21px;
+      font-weight: 950;
+    }
+
+    .profile-name {
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .profile-id {
+      margin-top: 4px;
+
+      color: var(--text-muted);
+
+      font-size: 10px;
+
+      word-break: break-all;
+    }
+
+    .profile-balance {
+      margin-top: 15px;
+
+      padding: 14px;
+
+      border-radius: 14px;
+
+      background: rgba(255,255,255,.04);
+
+      border: 1px solid var(--line);
+    }
+
+    .profile-balance-label {
+      color: var(--text-muted);
+
+      font-size: 10px;
+    }
+
+    .profile-balance-value {
+      margin-top: 5px;
+
+      font-size: 21px;
+      font-weight: 950;
+    }
+
+    /* =========================================================
+       TOAST
+       ========================================================= */
+
+    .toast {
+      position: fixed;
+
+      left: 50%;
+      bottom: calc(
+        88px + var(--safe-bottom)
+      );
+
+      z-index: 900;
+
+      transform:
+        translate(-50%, 15px);
+
+      opacity: 0;
+      pointer-events: none;
+
+      width: min(
+        calc(100% - 30px),
+        420px
+      );
+
+      padding: 13px 15px;
+
+      border-radius: 13px;
+
+      background: #fff;
+      color: #000;
+
+      font-size: 12px;
+      font-weight: 800;
+
+      text-align: center;
+
+      box-shadow:
+        0 15px 50px rgba(0,0,0,.45);
+
+      transition:
+        opacity .2s ease,
+        transform .2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+
+      transform:
+        translate(-50%, 0);
+    }
+
+    .toast.error {
+      background: #fecaca;
+    }
+
+    .toast.success {
+      background: #dcfce7;
+    }
+
+    /* =========================================================
+       LOADING
+       ========================================================= */
+
+    .loading {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .loading::after {
+      content: "";
+
+      position: absolute;
+
+      inset: 0;
+
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          rgba(255,255,255,.08),
+          transparent
+        );
+
+      transform: translateX(-100%);
+
+      animation: shimmer 1.3s infinite;
+    }
+
+    @keyframes shimmer {
+      to {
+        transform: translateX(100%);
+      }
+    }
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @media (max-width: 900px) {
+      .wallpaper-grid {
+        grid-template-columns:
+          repeat(3, minmax(0, 1fr));
+      }
+
+      .vault-row {
+        grid-template-columns:
+          repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 650px) {
+      .topbar-inner {
+        min-height: 62px;
+        padding: 9px 14px;
+      }
+
+      .brand-mark {
+        width: 35px;
+        height: 35px;
+      }
+
+      .brand-title {
+        font-size: 15px;
+      }
+
+      .app {
+        padding:
+          18px 14px
+          calc(100px + var(--safe-bottom));
+      }
+
+      .hero {
+        padding: 25px 20px;
+      }
+
+      .hero h1 {
+        font-size: 35px;
+      }
+
+      .wallpaper-grid {
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
+
+        gap: 10px;
+      }
+
+      .vault-row {
+        display: flex;
+
+        overflow-x: auto;
+
+        scrollbar-width: none;
+
+        padding-bottom: 4px;
+      }
+
+      .vault-row::-webkit-scrollbar {
+        display: none;
+      }
+
+      .vault-card {
+        flex: 0 0 125px;
+      }
+
+      .section-title {
+        font-size: 18px;
+      }
+
+      .modal {
+        padding: 10px;
+      }
+
+      .modal-panel {
+        max-height: 94vh;
+        border-radius: 20px;
+      }
+
+      .detail-image-wrap {
+        border-radius: 20px 20px 0 0;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .brand-subtitle {
+        display: none;
+      }
+
+      .hero h1 {
+        font-size: 31px;
+      }
+
+      .wall-info {
+        padding: 9px;
+      }
+
+      .wall-title {
+        font-size: 12px;
+      }
+
+      .wall-price {
+        font-size: 11px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-  <div class="app">
+  <!-- =======================================================
+       HEADER
+       ======================================================= -->
 
-    <!-- BACKGROUND -->
-    <div class="bg">
-      <div class="orb orb1"></div>
-      <div class="orb orb2"></div>
-      <div class="grid"></div>
-      <div class="particles"></div>
-    </div>
+  <header class="topbar">
 
-    <!-- HEADER -->
-    <header class="topbar">
+    <div class="topbar-inner">
 
-      <div class="brand">
-        <div class="brand-mark">W</div>
+      <a
+        href="#explore"
+        class="brand"
+        id="brandHome"
+      >
 
-        <div>
-          <div class="brand-name">WALPAP</div>
-          <div class="brand-sub">OWN YOUR SCREEN</div>
+        <div class="brand-mark">
+          W
         </div>
+
+        <div class="brand-text">
+
+          <div class="brand-title">
+            WALPAP
+          </div>
+
+          <div class="brand-subtitle">
+            Premium Wallpaper
+          </div>
+
+        </div>
+
+      </a>
+
+      <div class="top-actions">
+
+        <button
+          class="icon-btn"
+          id="searchButton"
+          type="button"
+          aria-label="Search"
+          onclick="openSearch()"
+        >
+          ⌕
+        </button>
+
+        <button
+          class="icon-btn"
+          id="walletButton"
+          type="button"
+          aria-label="Wallet"
+          onclick="openWallet()"
+        >
+          ◇
+        </button>
+
+        <button
+          class="icon-btn"
+          id="profileButton"
+          type="button"
+          aria-label="Profile"
+          onclick="openProfile()"
+        >
+          ●
+        </button>
+
       </div>
 
-      <button
-        class="wallet-button"
-        onclick="openWallet()"
-      >
-        <span>◆</span>
-        <strong id="balance">Rp50K</strong>
-      </button>
+    </div>
 
-    </header>
+  </header>
 
 
-    <!-- MAIN -->
-    <main>
+  <!-- =======================================================
+       MAIN APP
+       ======================================================= -->
 
-      <!-- HERO -->
-      <section class="hero">
+  <main class="app" id="explore">
 
-        <div class="hero-glow"></div>
+    <!-- STATUS -->
 
-        <div class="hero-content">
+    <div class="statusbar">
 
-          <div class="eyebrow">
-            DIGITAL WALLPAPER MARKET
-          </div>
+      <div class="status-left">
 
-          <h1>
-            YOUR SCREEN.
-            <span>YOUR RARITY.</span>
-          </h1>
+        <span
+          class="status-dot"
+          id="statusDot"
+        ></span>
 
-          <p>
-            Discover limited digital wallpapers
-            and own your favorite screen.
+        <span id="apiStatus">
+          Connecting to Firestore...
+        </span>
+
+      </div>
+
+      <div class="user-balance">
+
+        <span class="balance-icon">
+          ◇
+        </span>
+
+        <span id="balance">
+          —
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+      <div class="hero-content">
+
+        <div class="hero-label">
+          Digital Art Marketplace
+        </div>
+
+        <h1>
+          Your screen.<br>
+          Your collection.
+        </h1>
+
+        <p>
+          Discover premium digital wallpapers created by independent
+          artists. Collect limited editions and keep them permanently
+          inside your WALPAP Vault.
+        </p>
+
+        <div class="hero-actions">
+
+          <button
+            class="btn btn-primary"
+            type="button"
+            onclick="scrollToMarketplace()"
+          >
+            Explore Wallpapers
+          </button>
+
+          <button
+            class="btn btn-secondary"
+            type="button"
+            onclick="openCreator()"
+          >
+            Become a Creator
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MARKETPLACE
+         ===================================================== -->
+
+    <section
+      class="section"
+      id="marketplace"
+    >
+
+      <div class="section-header">
+
+        <div>
+
+          <h2 class="section-title">
+            Discover
+          </h2>
+
+          <p class="section-description">
+            Premium wallpapers from the WALPAP marketplace.
           </p>
-
-          <button
-            class="primary-btn"
-            onclick="scrollExplore()"
-          >
-            EXPLORE DROPS
-            <span>→</span>
-          </button>
-
-        </div>
-
-      </section>
-
-
-      <!-- STATS -->
-      <section class="stats">
-
-        <div class="stat-card">
-          <strong>12K+</strong>
-          <span>WALLPAPERS</span>
-        </div>
-
-        <div class="stat-card">
-          <strong>2.4K</strong>
-          <span>CREATORS</span>
-        </div>
-
-        <div class="stat-card">
-          <strong>87K</strong>
-          <span>COLLECTORS</span>
-        </div>
-
-      </section>
-
-
-      <!-- FILTER -->
-      <section
-        class="explore"
-        id="explore"
-      >
-
-        <div class="section-head">
-
-          <div>
-            <div class="section-label">
-              DISCOVER
-            </div>
-
-            <h2>Explore</h2>
-          </div>
-
-          <button
-            class="search-btn"
-            onclick="openSearch()"
-          >
-            🔎
-          </button>
-
-        </div>
-
-
-        <div class="filters">
-
-          <button
-            class="filter active"
-            onclick="filterWallpapers('all',this)"
-          >
-            ALL
-          </button>
-
-          <button
-            class="filter"
-            onclick="filterWallpapers('rare',this)"
-          >
-            RARE
-          </button>
-
-          <button
-            class="filter"
-            onclick="filterWallpapers('epic',this)"
-          >
-            EPIC
-          </button>
-
-          <button
-            class="filter"
-            onclick="filterWallpapers('legendary',this)"
-          >
-            LEGENDARY
-          </button>
-
-          <button
-            class="filter"
-            onclick="filterWallpapers('mythic',this)"
-          >
-            MYTHIC
-          </button>
-
-        </div>
-
-
-        <div
-          class="wallpaper-grid"
-          id="wallpaperGrid"
-        ></div>
-
-      </section>
-
-
-      <!-- VAULT -->
-      <section class="vault">
-
-        <div class="section-head">
-
-          <div>
-            <div class="section-label">
-              YOUR COLLECTION
-            </div>
-
-            <h2>My Vault</h2>
-          </div>
-
-          <button
-            class="see-all"
-            onclick="showVault()"
-          >
-            SEE ALL
-          </button>
-
-        </div>
-
-        <div
-          class="vault-row"
-          id="vaultRow"
-        ></div>
-
-      </section>
-
-
-      <!-- CREATOR -->
-      <section class="creator-banner">
-
-        <div class="creator-light"></div>
-
-        <div class="creator-content">
-
-          <div class="creator-icon">
-            ✦
-          </div>
-
-          <div>
-
-            <div class="section-label">
-              FOR ARTISTS
-            </div>
-
-            <h2>
-              Turn your art
-              into collectibles.
-            </h2>
-
-            <p>
-              Upload your wallpaper,
-              set rarity and editions,
-              and earn from every sale.
-            </p>
-
-          </div>
 
         </div>
 
         <button
-          class="creator-btn"
-          onclick="openCreator()"
+          class="section-action"
+          type="button"
+          onclick="loadWallpapers()"
         >
-          BECOME CREATOR →
+          Refresh
         </button>
 
-      </section>
-
-    </main>
+      </div>
 
 
-    <!-- BOTTOM NAV -->
-    <nav class="bottom-nav">
+      <!-- FILTERS -->
 
-      <button
-        class="nav-item active"
-        onclick="goHome()"
+      <div class="filters">
+
+        <button
+          class="filter active"
+          data-filter="all"
+          type="button"
+          onclick="filterWallpapers('all', this)"
+        >
+          All
+        </button>
+
+        <button
+          class="filter"
+          data-filter="rare"
+          type="button"
+          onclick="filterWallpapers('rare', this)"
+        >
+          Rare
+        </button>
+
+        <button
+          class="filter"
+          data-filter="epic"
+          type="button"
+          onclick="filterWallpapers('epic', this)"
+        >
+          Epic
+        </button>
+
+        <button
+          class="filter"
+          data-filter="legendary"
+          type="button"
+          onclick="filterWallpapers('legendary', this)"
+        >
+          Legendary
+        </button>
+
+        <button
+          class="filter"
+          data-filter="free"
+          type="button"
+          onclick="filterWallpapers('free', this)"
+        >
+          Free
+        </button>
+
+      </div>
+
+
+      <!-- WALLPAPER GRID -->
+
+      <div
+        class="wallpaper-grid"
+        id="wallpaperGrid"
       >
-        <span>⌂</span>
-        <small>HOME</small>
-      </button>
 
-      <button
-        class="nav-item"
-        onclick="scrollExplore()"
+        <div class="empty-state">
+
+          <div class="empty-icon">
+            ◌
+          </div>
+
+          <div class="empty-title">
+            Loading wallpapers...
+          </div>
+
+          <div class="empty-text">
+            Connecting to the WALPAP Firestore marketplace.
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MY VAULT
+         ===================================================== -->
+
+    <section
+      class="section"
+      id="vaultSection"
+    >
+
+      <div class="section-header">
+
+        <div>
+
+          <h2 class="section-title">
+            My Vault
+          </h2>
+
+          <p class="section-description">
+            Wallpapers you own.
+          </p>
+
+        </div>
+
+        <button
+          class="section-action"
+          type="button"
+          onclick="syncVault()"
+        >
+          Refresh
+        </button>
+
+      </div>
+
+
+      <div
+        class="vault-row"
+        id="vaultRow"
       >
-        <span>◈</span>
-        <small>EXPLORE</small>
-      </button>
 
-      <button
-        class="nav-item"
-        onclick="showVault()"
-      >
-        <span>◆</span>
-        <small>VAULT</small>
-      </button>
+        <div class="vault-empty">
+          Loading your collection...
+        </div>
 
-      <button
-        class="nav-item"
-        onclick="openCreator()"
-      >
-        <span>✦</span>
-        <small>CREATE</small>
-      </button>
+      </div>
 
-      <button
-        class="nav-item"
-        onclick="openProfile()"
-      >
-        <span>●</span>
-        <small>PROFILE</small>
-      </button>
-
-    </nav>
-
-  </div>
+    </section>
 
 
-  <!-- WALLPAPER DETAIL -->
+    <!-- =====================================================
+         CREATOR CTA
+         ===================================================== -->
+
+    <section class="section">
+
+      <div class="hero">
+
+        <div class="hero-content">
+
+          <div class="hero-label">
+            Creator Program
+          </div>
+
+          <h2
+            style="
+              margin:0;
+              font-size:28px;
+              letter-spacing:-.04em;
+            "
+          >
+            Create. Publish.<br>
+            Build your collection.
+          </h2>
+
+          <p>
+            Upload your own digital wallpaper and publish it
+            to the WALPAP marketplace.
+          </p>
+
+          <div class="hero-actions">
+
+            <button
+              class="btn btn-primary"
+              type="button"
+              onclick="openCreator()"
+            >
+              Publish Wallpaper
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =======================================================
+       BOTTOM NAVIGATION
+       ======================================================= -->
+
+  <nav class="bottom-nav">
+
+    <button
+      class="nav-item active"
+      id="navExplore"
+      type="button"
+      onclick="goExplore()"
+    >
+
+      <span>
+        ◇
+      </span>
+
+      <span class="nav-label">
+        Explore
+      </span>
+
+    </button>
+
+
+    <button
+      class="nav-item"
+      id="navVault"
+      type="button"
+      onclick="showVault()"
+    >
+
+      <span>
+        ▣
+      </span>
+
+      <span class="nav-label">
+        Vault
+      </span>
+
+    </button>
+
+
+    <button
+      class="nav-item"
+      id="navCreate"
+      type="button"
+      onclick="openCreator()"
+    >
+
+      <span>
+        ＋
+      </span>
+
+      <span class="nav-label">
+        Create
+      </span>
+
+    </button>
+
+
+    <button
+      class="nav-item"
+      id="navProfile"
+      type="button"
+      onclick="openProfile()"
+    >
+
+      <span>
+        ●
+      </span>
+
+      <span class="nav-label">
+        Profile
+      </span>
+
+    </button>
+
+  </nav>
+
+
+  <!-- =======================================================
+       WALLPAPER DETAIL MODAL
+       ======================================================= -->
+
   <div
     class="modal"
     id="detailModal"
+    aria-hidden="true"
   >
 
-    <div class="modal-backdrop" onclick="closeDetail()"></div>
-
-    <div class="detail-sheet">
+    <div class="modal-panel">
 
       <button
-        class="close-btn"
+        class="modal-close"
+        type="button"
         onclick="closeDetail()"
+        aria-label="Close"
       >
         ×
       </button>
 
-      <div
-        class="detail-image"
-        id="detailImage"
-      ></div>
 
-      <div class="detail-info">
+      <div class="detail-image-wrap">
 
-        <div class="rarity-pill" id="detailRarity">
-          LEGENDARY
+        <img
+          id="detailImage"
+          class="detail-image"
+          src=""
+          alt="Wallpaper"
+        >
+
+      </div>
+
+
+      <div class="detail-content">
+
+        <div
+          class="detail-rarity"
+          id="detailRarity"
+        >
+          RARE
         </div>
 
-        <h2 id="detailTitle">
+        <h2
+          class="detail-title"
+          id="detailTitle"
+        >
           Wallpaper
         </h2>
 
-        <div class="creator-line">
-          <span>BY</span>
-          <strong id="detailCreator">
-            WALPAP CREATOR
-          </strong>
+        <div
+          class="detail-creator"
+          id="detailCreator"
+        >
+          Creator
         </div>
 
-        <div class="edition">
-          <span>EDITION</span>
-          <strong id="detailEdition">
-            #027 / 100
-          </strong>
+
+        <div class="detail-grid">
+
+          <div class="detail-stat">
+
+            <div class="detail-stat-label">
+              Edition
+            </div>
+
+            <div
+              class="detail-stat-value"
+              id="detailEdition"
+            >
+              —
+            </div>
+
+          </div>
+
+
+          <div class="detail-stat">
+
+            <div class="detail-stat-label">
+              Status
+            </div>
+
+            <div
+              class="detail-stat-value"
+              id="detailStatus"
+            >
+              Available
+            </div>
+
+          </div>
+
         </div>
 
-        <div class="detail-price">
-          <span>PRICE</span>
-          <strong id="detailPrice">
-            Rp10.000
-          </strong>
+
+        <div
+          class="detail-price"
+          id="detailPrice"
+        >
+          Rp0
         </div>
+
 
         <div class="detail-actions">
 
           <button
-            class="favorite-large"
+            class="btn btn-secondary"
+            id="favoriteButton"
+            type="button"
             onclick="toggleFavoriteCurrent()"
           >
-            ♡
+            ♡ Favorite
           </button>
 
           <button
-            class="buy-btn"
+            class="btn btn-primary"
             id="buyButton"
+            type="button"
             onclick="buyCurrent()"
           >
-            BUY NOW
+            Buy Now
           </button>
 
         </div>
 
+
         <div
-          class="set-wallpaper-buttons"
           id="setButtons"
-          style="display:none"
+          style="
+            display:none;
+            margin-top:9px;
+          "
         >
 
-          <button onclick="setCurrentWallpaper('home')">
-            🏠 HOME
-          </button>
-
-          <button onclick="setCurrentWallpaper('lock')">
-            🔒 LOCK
-          </button>
-
-          <button onclick="setCurrentWallpaper('both')">
-            🏠🔒 BOTH
+          <button
+            class="btn btn-secondary"
+            type="button"
+            style="width:100%;"
+            onclick="setCurrentWallpaper()"
+          >
+            Set as Wallpaper
           </button>
 
         </div>
@@ -402,57 +2316,81 @@
   </div>
 
 
-  <!-- WALLET -->
+  <!-- =======================================================
+       WALLET MODAL
+       ======================================================= -->
+
   <div
     class="modal"
     id="walletModal"
+    aria-hidden="true"
   >
 
-    <div class="modal-backdrop" onclick="closeWallet()"></div>
-
-    <div class="wallet-sheet">
+    <div class="modal-panel">
 
       <button
-        class="close-btn"
+        class="modal-close"
+        type="button"
         onclick="closeWallet()"
       >
         ×
       </button>
 
-      <div class="section-label">
-        WALPAP WALLET
-      </div>
+      <div class="modal-body">
 
-      <h2>Your Balance</h2>
+        <h2 class="modal-title">
+          Wallet
+        </h2>
 
-      <div
-        class="big-balance"
-        id="walletBalance"
-      >
-        Rp50.000
-      </div>
+        <p class="modal-subtitle">
+          Your WALPAP balance.
+        </p>
 
-      <button
-        class="primary-btn full"
-        onclick="topUp()"
-      >
-        + TOP UP
-      </button>
 
-      <div class="wallet-info">
+        <div class="wallet-card">
 
-        <div>
-          <span>Purchased</span>
-          <strong id="walletOwned">
-            0
-          </strong>
-        </div>
+          <div class="wallet-label">
+            Available Balance
+          </div>
 
-        <div>
-          <span>Favorites</span>
-          <strong id="walletFavorites">
-            0
-          </strong>
+          <div
+            class="wallet-balance"
+            id="walletBalance"
+          >
+            —
+          </div>
+
+
+          <div class="wallet-actions">
+
+            <button
+              class="btn btn-primary"
+              type="button"
+              onclick="topUp()"
+            >
+              + Top Up
+            </button>
+
+            <button
+              class="btn btn-secondary"
+              type="button"
+              onclick="updateWalletStats()"
+            >
+              Refresh
+            </button>
+
+          </div>
+
+
+          <div class="wallet-info">
+
+            Saldo WALPAP disimpan di Firestore.
+            Perubahan saldo harus dilakukan melalui
+            sistem pembayaran atau Cloud Function yang
+            aman, bukan langsung dari browser.
+
+          </div>
+
         </div>
 
       </div>
@@ -462,173 +2400,386 @@
   </div>
 
 
-  <!-- SEARCH -->
+  <!-- =======================================================
+       SEARCH MODAL
+       ======================================================= -->
+
   <div
     class="modal"
     id="searchModal"
+    aria-hidden="true"
   >
 
-    <div class="modal-backdrop" onclick="closeSearch()"></div>
-
-    <div class="search-sheet">
+    <div class="modal-panel">
 
       <button
-        class="close-btn"
+        class="modal-close"
+        type="button"
         onclick="closeSearch()"
       >
         ×
       </button>
 
-      <div class="section-label">
-        SEARCH
+      <div class="modal-body">
+
+        <h2 class="modal-title">
+          Search
+        </h2>
+
+        <p class="modal-subtitle">
+          Find your next wallpaper.
+        </p>
+
+
+        <div class="search-box">
+
+          <span>
+            ⌕
+          </span>
+
+          <input
+            id="searchInput"
+            type="search"
+            autocomplete="off"
+            placeholder="Search wallpaper or creator..."
+          >
+
+        </div>
+
+
+        <div
+          class="search-results"
+          id="searchResults"
+        >
+
+          <div class="empty-state">
+
+            <div class="empty-text">
+              Start typing to search.
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
-
-      <h2>Find your screen.</h2>
-
-      <input
-        id="searchInput"
-        class="search-input"
-        type="text"
-        placeholder="Search wallpaper..."
-        oninput="searchWallpapers()"
-      >
-
-      <div
-        id="searchResults"
-        class="search-results"
-      ></div>
 
     </div>
 
   </div>
 
 
-  <!-- CREATOR -->
+  <!-- =======================================================
+       CREATOR MODAL
+       ======================================================= -->
+
   <div
     class="modal"
     id="creatorModal"
+    aria-hidden="true"
   >
 
-    <div class="modal-backdrop" onclick="closeCreator()"></div>
-
-    <div class="creator-sheet">
+    <div class="modal-panel">
 
       <button
-        class="close-btn"
+        class="modal-close"
+        type="button"
         onclick="closeCreator()"
       >
         ×
       </button>
 
-      <div class="section-label">
-        WALPAP CREATOR
-      </div>
+      <div class="modal-body">
 
-      <h2>Publish your art.</h2>
-
-      <p>
-        Create limited digital wallpapers
-        and earn from every sale.
-      </p>
-
-      <div class="creator-input">
-
-        <label>
-          Wallpaper name
-        </label>
-
-        <input
+        <h2
+          class="modal-title"
           id="creatorTitle"
-          placeholder="Example: Cyber Tokyo"
+        >
+          Publish Wallpaper
+        </h2>
+
+        <p class="modal-subtitle">
+          Publish your digital artwork to WALPAP.
+        </p>
+
+
+        <div class="form-group">
+
+          <label
+            class="form-label"
+            for="creatorImage"
+          >
+            Image URL
+          </label>
+
+          <input
+            class="input"
+            id="creatorImage"
+            type="url"
+            placeholder="https://..."
+            autocomplete="off"
+          >
+
+        </div>
+
+
+        <div
+          class="creator-preview"
+          id="creatorPreview"
         >
 
+          <img
+            id="creatorPreviewImage"
+            src=""
+            alt="Preview"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label
+            class="form-label"
+            for="creatorTitleInput"
+          >
+            Wallpaper Title
+          </label>
+
+          <input
+            class="input"
+            id="creatorTitleInput"
+            type="text"
+            maxlength="100"
+            placeholder="Example: Midnight Tokyo"
+            autocomplete="off"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label
+            class="form-label"
+            for="creatorPrice"
+          >
+            Price
+          </label>
+
+          <input
+            class="input"
+            id="creatorPrice"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="5000"
+            inputmode="numeric"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label
+            class="form-label"
+            for="creatorRarity"
+          >
+            Rarity
+          </label>
+
+          <select
+            class="select"
+            id="creatorRarity"
+          >
+
+            <option value="rare">
+              Rare
+            </option>
+
+            <option value="epic">
+              Epic
+            </option>
+
+            <option value="legendary">
+              Legendary
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label
+            class="form-label"
+            for="creatorEditionLimit"
+          >
+            Edition Limit
+          </label>
+
+          <input
+            class="input"
+            id="creatorEditionLimit"
+            type="number"
+            min="1"
+            step="1"
+            value="10000"
+            inputmode="numeric"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label
+            class="form-label"
+            for="creatorDescription"
+          >
+            Description
+          </label>
+
+          <textarea
+            class="textarea"
+            id="creatorDescription"
+            maxlength="1000"
+            placeholder="Describe your wallpaper..."
+          ></textarea>
+
+        </div>
+
+
+        <div class="form-actions">
+
+          <button
+            class="btn btn-secondary"
+            type="button"
+            onclick="closeCreator()"
+          >
+            Cancel
+          </button>
+
+          <button
+            class="btn btn-primary"
+            type="button"
+            onclick="publishWallpaper()"
+          >
+            Publish
+          </button>
+
+        </div>
+
       </div>
-
-      <div class="creator-input">
-
-        <label>
-          Image URL
-        </label>
-
-        <input
-          id="creatorImage"
-          placeholder="https://..."
-        >
-
-      </div>
-
-      <div class="creator-input">
-
-        <label>
-          Price
-        </label>
-
-        <input
-          id="creatorPrice"
-          type="number"
-          placeholder="10000"
-        >
-
-      </div>
-
-      <button
-        class="primary-btn full"
-        onclick="publishWallpaper()"
-      >
-        PUBLISH WALLPAPER
-      </button>
 
     </div>
 
   </div>
 
 
-  <!-- PROFILE -->
+  <!-- =======================================================
+       PROFILE MODAL
+       ======================================================= -->
+
   <div
     class="modal"
     id="profileModal"
+    aria-hidden="true"
   >
 
-    <div class="modal-backdrop" onclick="closeProfile()"></div>
-
-    <div class="profile-sheet">
+    <div class="modal-panel">
 
       <button
-        class="close-btn"
+        class="modal-close"
+        type="button"
         onclick="closeProfile()"
       >
         ×
       </button>
 
-      <div class="avatar">
-        W
-      </div>
+      <div class="modal-body">
 
-      <h2>WALPAP Collector</h2>
+        <h2 class="modal-title">
+          Profile
+        </h2>
 
-      <p>
-        Digital Screen Collector
-      </p>
+        <p class="modal-subtitle">
+          Your WALPAP account.
+        </p>
 
-      <div class="profile-stats">
 
-        <div>
-          <strong id="profileOwned">
-            0
-          </strong>
-          <span>OWNED</span>
+        <div class="profile-head">
+
+          <div
+            class="profile-avatar"
+            id="profileAvatar"
+          >
+            W
+          </div>
+
+          <div>
+
+            <div
+              class="profile-name"
+              id="profileName"
+            >
+              WALPAP User
+            </div>
+
+            <div
+              class="profile-id"
+              id="profileId"
+            >
+              Loading...
+            </div>
+
+          </div>
+
         </div>
 
-        <div>
-          <strong id="profileFav">
-            0
-          </strong>
-          <span>FAVORITES</span>
+
+        <div class="profile-balance">
+
+          <div class="profile-balance-label">
+            Balance
+          </div>
+
+          <div
+            class="profile-balance-value"
+            id="profileBalance"
+          >
+            —
+          </div>
+
         </div>
 
-        <div>
-          <strong>1</strong>
-          <span>LEVEL</span>
+
+        <div
+          style="
+            display:grid;
+            gap:8px;
+            margin-top:14px;
+          "
+        >
+
+          <button
+            class="btn btn-secondary"
+            type="button"
+            onclick="openWallet(); closeProfile();"
+          >
+            Open Wallet
+          </button>
+
+          <button
+            class="btn btn-secondary"
+            type="button"
+            onclick="syncVault(); closeProfile();"
+          >
+            Refresh Vault
+          </button>
+
         </div>
 
       </div>
@@ -638,16 +2789,334 @@
   </div>
 
 
-  <!-- TOAST -->
+  <!-- =======================================================
+       TOAST
+       ======================================================= -->
+
   <div
-    id="toast"
     class="toast"
+    id="toast"
+    role="status"
+    aria-live="polite"
   >
     WALPAP
   </div>
 
 
-  <script type="module" src="app.js"></script>
+  <!-- =======================================================
+       FIREBASE + WALPAP APP
+       =======================================================
+
+       IMPORTANT:
+       app.js harus menggunakan ES module.
+
+       Jangan gunakan:
+       <script src="app.js"></script>
+
+       Gunakan:
+       <script type="module" src="./app.js"></script>
+       ======================================================= -->
+
+  <script
+    type="module"
+    src="./app.js"
+  ></script>
+
+
+  <!-- =======================================================
+       SMALL UI HELPERS
+       ======================================================= -->
+
+  <script>
+    function scrollToMarketplace() {
+      const target = document.getElementById("marketplace");
+
+      if (target) {
+        target.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
+    }
+
+    function goExplore() {
+
+      document
+        .getElementById("navExplore")
+        ?.classList.add("active");
+
+      document
+        .getElementById("navVault")
+        ?.classList.remove("active");
+
+      document
+        .getElementById("navCreate")
+        ?.classList.remove("active");
+
+      document
+        .getElementById("navProfile")
+        ?.classList.remove("active");
+
+      scrollToMarketplace();
+    }
+
+    function activateNav(name) {
+
+      const ids = [
+        "navExplore",
+        "navVault",
+        "navCreate",
+        "navProfile"
+      ];
+
+      ids.forEach(id => {
+        document
+          .getElementById(id)
+          ?.classList.remove("active");
+      });
+
+      const target =
+        document.getElementById("nav" + name);
+
+      target?.classList.add("active");
+    }
+
+    function openProfile() {
+
+      activateNav("Profile");
+
+      const modal =
+        document.getElementById("profileModal");
+
+      if (modal) {
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden", "false");
+      }
+
+      if (typeof window.loadUserFromAPI === "function") {
+        window.loadUserFromAPI();
+      }
+    }
+
+    function closeProfile() {
+
+      const modal =
+        document.getElementById("profileModal");
+
+      if (modal) {
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+      }
+    }
+
+
+    /*
+     * Creator title compatibility.
+     *
+     * app.js versi Firestore bisa menggunakan
+     * #creatorTitle sebagai judul modal.
+     */
+    document.addEventListener("DOMContentLoaded", () => {
+
+      const creatorTitleInput =
+        document.getElementById("creatorTitleInput");
+
+      const creatorImage =
+        document.getElementById("creatorImage");
+
+      const creatorPreview =
+        document.getElementById("creatorPreview");
+
+      const creatorPreviewImage =
+        document.getElementById("creatorPreviewImage");
+
+
+      if (creatorImage) {
+
+        creatorImage.addEventListener("input", () => {
+
+          const url =
+            creatorImage.value.trim();
+
+          if (
+            url &&
+            creatorPreview &&
+            creatorPreviewImage
+          ) {
+
+            creatorPreviewImage.src = url;
+
+            creatorPreview.classList.add("show");
+
+          } else if (creatorPreview) {
+
+            creatorPreview.classList.remove("show");
+
+          }
+
+        });
+
+      }
+
+
+      /*
+       * Search input.
+       *
+       * app.js juga memiliki searchWallpapers().
+       */
+      const searchInput =
+        document.getElementById("searchInput");
+
+      if (searchInput) {
+
+        searchInput.addEventListener(
+          "input",
+          () => {
+
+            if (
+              typeof window.searchWallpapers === "function"
+            ) {
+
+              window.searchWallpapers(
+                searchInput.value
+              );
+
+            }
+
+          }
+        );
+
+        searchInput.addEventListener(
+          "keydown",
+          event => {
+
+            if (event.key === "Escape") {
+
+              if (
+                typeof window.closeSearch === "function"
+              ) {
+
+                window.closeSearch();
+
+              }
+
+            }
+
+          }
+        );
+
+      }
+
+
+      /*
+       * Close modal by clicking backdrop.
+       */
+      document
+        .querySelectorAll(".modal")
+        .forEach(modal => {
+
+          modal.addEventListener(
+            "click",
+            event => {
+
+              if (event.target !== modal) {
+                return;
+              }
+
+              modal.classList.remove("open");
+              modal.setAttribute(
+                "aria-hidden",
+                "true"
+              );
+
+            }
+          );
+
+        });
+
+
+      /*
+       * ESC = close modal.
+       */
+      document.addEventListener(
+        "keydown",
+        event => {
+
+          if (event.key !== "Escape") {
+            return;
+          }
+
+          document
+            .querySelectorAll(".modal.open")
+            .forEach(modal => {
+
+              modal.classList.remove("open");
+
+              modal.setAttribute(
+                "aria-hidden",
+                "true"
+              );
+
+            });
+
+        }
+      );
+
+    });
+
+
+    /*
+     * Keep nav state synchronized with scrolling.
+     */
+    window.addEventListener(
+      "scroll",
+      () => {
+
+        const vault =
+          document.getElementById("vaultSection");
+
+        const marketplace =
+          document.getElementById("marketplace");
+
+        if (!vault || !marketplace) {
+          return;
+        }
+
+        const y =
+          window.scrollY +
+          window.innerHeight * .35;
+
+        if (
+          y >= vault.offsetTop
+        ) {
+
+          document
+            .getElementById("navVault")
+            ?.classList.add("active");
+
+          document
+            .getElementById("navExplore")
+            ?.classList.remove("active");
+
+        } else {
+
+          document
+            .getElementById("navVault")
+            ?.classList.remove("active");
+
+          document
+            .getElementById("navExplore")
+            ?.classList.add("active");
+
+        }
+
+      },
+      {
+        passive: true
+      }
+    );
+
+  </script>
 
 </body>
 </html>
