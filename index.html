@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"
+  />
+
+  <meta
+    name="theme-color"
+    content="#050505"
+  />
+
+  <meta
+    name="description"
+    content="WALPAP — Premium Digital Wallpaper Collectibles."
+  />
+
+  <title>WALPAP — Digital Wallpaper Collectibles</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="app">
+
+  <!-- =====================================================
+       TOP BAR
+  ====================================================== -->
+
+  <header class="topbar">
+
+    <button
+      class="icon-btn"
+      id="menuBtn"
+      aria-label="Open menu"
+    >
+      ☰
+    </button>
+
+    <div
+      class="brand"
+      data-page="home"
+    >
+      WALPAP
+    </div>
+
+    <button
+      class="icon-btn"
+      id="profileBtn"
+      aria-label="Profile"
+    >
+      ◯
+    </button>
+
+  </header>
+
+
+  <!-- =====================================================
+       SIDE MENU
+  ====================================================== -->
+
+  <aside
+    class="side-menu"
+    id="sideMenu"
+  >
+
+    <div class="side-menu-header">
+
+      <div>
+        <div class="eyebrow">
+          WALPAP
+        </div>
+
+        <h2>
+          The Vault
+        </h2>
+      </div>
+
+      <button
+        class="icon-btn"
+        id="closeMenuBtn"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <nav>
+
+      <button
+        class="profile-menu-btn"
+        data-page="home"
+      >
+        Home
+      </button>
+
+      <button
+        class="profile-menu-btn"
+        data-page="drops"
+      >
+        Drops
+      </button>
+
+      <button
+        class="profile-menu-btn"
+        data-page="explore"
+      >
+        Explore
+      </button>
+
+      <button
+        class="profile-menu-btn"
+        data-page="vault"
+      >
+        My Vault
+      </button>
+
+      <button
+        class="profile-menu-btn"
+        data-page="marketplace"
+      >
+        Marketplace
+      </button>
+
+      <button
+        class="profile-menu-btn"
+        data-page="profile"
+      >
+        Profile
+      </button>
+
+    </nav>
+
+
+    <div class="side-menu-footer">
+
+      <div class="fine-print">
+        Digital collectibles.<br>
+        Limited editions.<br>
+        Permanent ownership.
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =====================================================
+       PAGES
+  ====================================================== -->
+
+  <main id="pages">
+
+
+    <!-- ===================================================
+         HOME
+    ==================================================== -->
+
+    <section
+      class="page active"
+      id="page-home"
+      data-page="home"
+    >
+
+      <section class="hero">
+
+        <div
+          class="hero-art obsidian-art"
+          id="heroArt"
+        >
+
+          <div class="hero-overlay"></div>
+
+          <div class="hero-content">
+
+            <div class="hero-edition">
+              LIMITED DIGITAL EDITION
+            </div>
+
+            <h1 id="heroTitle">
+              OBSIDIAN
+            </h1>
+
+            <p id="heroSubtitle">
+              A wallpaper designed to be owned.
+            </p>
+
+            <div class="hero-price">
+              Rp1.000.000
+            </div>
+
+            <button
+              class="primary-btn"
+              id="heroCta"
+            >
+              VIEW EDITION
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- CURRENT DROP -->
+
+      <section class="section">
+
+        <div class="section-heading">
+
+          <div>
+            <div class="eyebrow">
+              CURRENT DROP
+            </div>
+
+            <h2>
+              Own the moment.
+            </h2>
+          </div>
+
+          <button
+            class="text-btn"
+            data-page="drops"
+          >
+            View all
+          </button>
+
+        </div>
+
+
+        <div
+          class="drop-card"
+          id="homeDropCard"
+        >
+
+          <div
+            class="art-preview obsidian-art"
+            id="homeDropArt"
+          >
+          </div>
+
+          <div class="drop-info">
+
+            <div class="eyebrow">
+              EDITION
+            </div>
+
+            <h2 id="homeDropTitle">
+              Loading...
+            </h2>
+
+            <p id="homeDropSubtitle">
+              Loading...
+            </p>
+
+            <div class="drop-price">
+              <span id="homeDropPrice">
+                Rp1.000.000
+              </span>
+            </div>
+
+
+            <div class="stock-row">
+
+              <span id="homeDropStock">
+                Loading stock...
+              </span>
+
+              <span id="homeDropSold">
+                0 sold
+              </span>
+
+            </div>
+
+
+            <div class="progress">
+
+              <div
+                id="homeDropProgress"
+                style="width:0%"
+              ></div>
+
+            </div>
+
+
+            <button
+              class="primary-btn large"
+              id="homeDropButton"
+            >
+              VIEW DROP
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- COMING SOON -->
+
+      <section class="section">
+
+        <div class="section-heading">
+
+          <div>
+
+            <div class="eyebrow">
+              NEXT
+            </div>
+
+            <h2>
+              Coming soon.
+            </h2>
+
+          </div>
+
+        </div>
+
+
+        <div
+          class="coming-card"
+          id="comingSoonCard"
+        >
+
+          <div
+            class="art-preview midnight-art"
+            id="comingArt"
+          ></div>
+
+          <div class="coming-info">
+
+            <div class="eyebrow">
+              NEXT DROP
+            </div>
+
+            <h3 id="comingTitle">
+              Midnight
+            </h3>
+
+            <p id="comingDate">
+              Coming soon
+            </p>
+
+            <div
+              class="countdown"
+              id="comingCountdown"
+            >
+              -- : -- : --
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- MANIFESTO -->
+
+      <section class="section manifesto">
+
+        <div class="eyebrow">
+          WHY WALPAP
+        </div>
+
+        <h2>
+          Not every wallpaper<br>
+          should be free.
+        </h2>
+
+        <p>
+          WALPAP turns the wallpaper on your phone
+          into a digital collectible.
+        </p>
+
+        <p>
+          Numbered editions. Limited supply.
+          Verified ownership.
+        </p>
+
+      </section>
+
+
+      <!-- GENESIS -->
+
+      <section class="section genesis-section">
+
+        <div class="eyebrow">
+          GENESIS
+        </div>
+
+        <h2>
+          The first 100.
+        </h2>
+
+
+        <div class="genesis-detail">
+
+          <div
+            class="genesis-art obsidian-art"
+          >
+
+            <div class="genesis-number">
+              001 — 100
+            </div>
+
+          </div>
+
+
+          <div>
+
+            <h3>
+              WALPAP Genesis
+            </h3>
+
+            <p>
+              The original limited digital wallpaper
+              collection.
+            </p>
+
+            <div class="genesis-detail-price">
+              Rp1.000.000
+            </div>
+
+            <div class="genesis-warning">
+              Only 100 editions.
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- COLLECTIONS -->
+
+      <section class="section">
+
+        <div class="section-heading">
+
+          <div>
+
+            <div class="eyebrow">
+              COLLECTIONS
+            </div>
+
+            <h2>
+              Curated worlds.
+            </h2>
+
+          </div>
+
+        </div>
+
+
+        <div class="collection-grid">
+
+          <button
+            class="collection-card obsidian-art"
+            data-category="genesis"
+          >
+            <span>
+              Genesis
+            </span>
+          </button>
+
+
+          <button
+            class="collection-card midnight-art"
+            data-category="midnight"
+          >
+            <span>
+              Midnight
+            </span>
+          </button>
+
+
+          <button
+            class="collection-card gold-art"
+            data-category="gold"
+          >
+            <span>
+              Gold
+            </span>
+          </button>
+
+
+          <button
+            class="collection-card royal-art"
+            data-category="royal"
+          >
+            <span>
+              Royal
+            </span>
+          </button>
+
+        </div>
+
+      </section>
+
+    </section>
+
+
+    <!-- ===================================================
+         DROPS
+    ==================================================== -->
+
+    <section
+      class="page"
+      id="page-drops"
+      data-page="drops"
+    >
+
+      <section class="section">
+
+        <div class="eyebrow">
+          WALPAP DROPS
+        </div>
+
+        <h1>
+          Limited editions.
+        </h1>
+
+        <p>
+          Once they're gone, they're gone.
+        </p>
+
+      </section>
+
+
+      <section
+        class="section"
+        id="dropsList"
+      >
+
+        <div class="product-list" id="dropProducts">
+
+          <!-- Firestore products inserted here -->
+
+        </div>
+
+      </section>
+
+    </section>
+
+
+    <!-- ===================================================
+         EXPLORE
+    ==================================================== -->
+
+    <section
+      class="page"
+      id="page-explore"
+      data-page="explore"
+    >
+
+      <section class="section">
+
+        <div class="eyebrow">
+          EXPLORE
+        </div>
+
+        <h1>
+          Find yours.
+        </h1>
+
+
+        <div class="filter-row">
+
+          <button
+            class="filter active"
+            data-filter="all"
+          >
+            All
+          </button>
+
+          <button
+            class="filter"
+            data-filter="genesis"
+          >
+            Genesis
+          </button>
+
+          <button
+            class="filter"
+            data-filter="midnight"
+          >
+            Midnight
+          </button>
+
+          <button
+            class="filter"
+            data-filter="gold"
+          >
+            Gold
+          </button>
+
+          <button
+            class="filter"
+            data-filter="royal"
+          >
+            Royal
+          </button>
+
+        </div>
+
+
+        <div
+          class="explore-grid"
+          id="exploreGrid"
+        >
+
+          <!-- Firestore products -->
+
+        </div>
+
+      </section>
+
+    </section>
+
+
+    <!-- ===================================================
+         DETAIL
+    ==================================================== -->
+
+    <section
+      class="page"
+      id="page-detail"
+      data-page="detail"
+    >
+
+      <section class="section">
+
+        <button
+          class="back-btn"
+          data-page="explore"
+        >
+          ← Back
+        </button>
+
+
+        <div class="detail-preview">
+
+          <div
+            class="detail-art obsidian-art"
+            id="detailArt"
+          >
+
+            <div
+              class="genesis-number"
+              id="detailEdition"
+            >
+              EDITION 001 / 100
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="detail-content">
+
+          <div class="eyebrow">
+            DIGITAL COLLECTIBLE
+          </div>
+
+          <h1 id="detailTitle">
+            Obsidian
+          </h1>
+
+          <p
+            class="detail-subtitle"
+            id="detailSubtitle"
+          >
+            Premium digital wallpaper.
+          </p>
+
+
+          <div
+            class="detail-price"
+            id="detailPrice"
+          >
+            Rp1.000.000
+          </div>
+
+
+          <div class="urgency-box">
+
+            <strong id="detailStock">
+              Limited edition
+            </strong>
+
+            <span id="detailUrgency">
+              Limited supply.
+            </span>
+
+          </div>
+
+
+          <div class="price-ladder">
+
+            <div class="price-step active">
+
+              <span>
+                Edition 001–010
+              </span>
+
+              <strong>
+                Rp1.000.000
+              </strong>
+
+            </div>
+
+            <div class="price-step">
+
+              <span>
+                Edition 011–030
+              </span>
+
+              <strong>
+                Rp1.500.000
+              </strong>
+
+            </div>
+
+            <div class="price-step">
+
+              <span>
+                Edition 031–060
+              </span>
+
+              <strong>
+                Rp2.000.000
+              </strong>
+
+            </div>
+
+            <div class="price-step">
+
+              <span>
+                Edition 061–100
+              </span>
+
+              <strong>
+                Rp3.000.000
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <div
+            class="detail-description"
+            id="detailDescription"
+          >
+            A premium digital collectible.
+          </div>
+
+
+          <ul class="features-list">
+
+            <li>
+              Numbered edition
+            </li>
+
+            <li>
+              Permanent ownership
+            </li>
+
+            <li>
+              High-resolution wallpaper
+            </li>
+
+            <li>
+              Digital certificate
+            </li>
+
+            <li>
+              Collector Vault access
+            </li>
+
+          </ul>
+
+
+          <button
+            class="primary-btn large"
+            id="buyDetailBtn"
+          >
+            CLAIM THIS EDITION
+          </button>
+
+
+          <div class="fine-print">
+            Digital product only.
+            No physical item will be shipped.
+          </div>
+
+        </div>
+
+      </section>
+
+    </section>
+
+
+    <!-- ===================================================
+         CHECKOUT
+    ==================================================== -->
+
+    <section
+      class="page"
+      id="page-checkout"
+      data-page="checkout"
+    >
+
+      <section class="section">
+
+        <button
+          class="back-btn"
+          id="checkoutBack"
+        >
+          ← Back
+        </button>
+
+
+        <div class="eyebrow">
+          CHECKOUT
+        </div>
+
+        <h1>
+          Make it yours.
+        </h1>
+
+
+        <div class="checkout-card">
+
+          <div
+            class="checkout-art obsidian-art"
+            id="checkoutArt"
+          ></div>
+
+
+          <div class="checkout-info">
+
+            <h2 id="checkoutTitle">
+              Obsidian
+            </h2>
+
+            <p id="checkoutEdition">
+              Edition 001 / 100
+            </p>
+
+            <div
+              class="drop-price"
+              id="checkoutPrice"
+            >
+              Rp1.000.000
+            </div>
+
+          </div>
+
+
+          <div class="payment-box">
+
+            <div class="eyebrow">
+              PAYMENT
+            </div>
+
+
+            <div class="payment-option">
+
+              <span>
+                WALPAP Balance
+              </span>
+
+              <strong id="checkoutBalance">
+                Rp0
+              </strong>
+
+            </div>
+
+
+            <div class="order-summary">
+
+              <div>
+
+                <span>
+                  Wallpaper
+                </span>
+
+                <strong id="summaryPrice">
+                  Rp1.000.000
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  Edition
+                </span>
+
+                <strong id="summaryEdition">
+                  #001
+                </strong>
+
+              </div>
+
+
+              <div class="total">
+
+                <span>
+                  Total
+                </span>
+
+                <strong id="summaryTotal">
+                  Rp1.000.000
+                </strong>
+
+              </div>
+
+            </div>
+
+
+            <button
+              class="primary-btn large"
+              id="confirmPurchaseBtn"
+            >
+              CONFIRM PURCHASE
+            </button>
+
+
+            <div
+              class="fine-print"
+              id="checkoutNotice"
+            >
+              Your purchase will be permanently recorded
+              in your WALPAP Vault.
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </section>
+
+
+    <!-- ===================================================
+         VAULT
+    ==================================================== -->
+
+    <section
+      class="page"
+      id="page-vault"
+      data-page="vault"
+    >
+
+      <section class="section">
+
+        <div class="eyebrow">
+          MY COLLECTION
+        </div>
+
+        <h1>
+          Your Vault.
+        </h1>
+
+
+        <div class="vault-stats">
+
+          <div>
+
+            <strong id="vaultCount">
+              0
+            </strong>
+
+            <span>
+              Owned
+            </span>
+
+          </div>
+
+
+          <div>
+
+            <strong id="vaultValue">
+              Rp0
+            </strong>
+
+            <span>
+              Collection value
+            </span>
+
+          </div>
+
+
+          <div>
+
+            <strong id="vaultTier">
+              Collector
+            </strong>
+
+            <span>
+              Tier
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <div
+          class="vault-grid"
+          id="vaultGrid"
+        >
+
+          <div class="fine-print">
+            Your collection will appear here.
+          </div>
+
+        </div>
+
+      </section>
+
+    </section>
+
+
+    <!-- ===================================================
+         CERTIFICATE
+    ==================================================== -->
+
+    <section
+      class="page"
+      id="page-certificate"
+      data-page="certificate"
+    >
+
+      <section class="section">
+
+        <button
+          class="back-btn"
+          id="certificateBack"
+        >
+          ← Back
+        </button>
+
+
+        <div class="eyebrow">
+          CERTIFICATE
+        </div>
+
+        <h1>
+          Proof of ownership.
+        </h1>
+
+
+        <div class="certificate-wrapper">
+
+          <div class="certificate">
+
+            <div class="certificate-top">
+
+              <span>
+                WALPAP
+              </span>
+
+              <span>
+                ORIGINAL
+              </span>
+
+            </div>
+
+
+            <div
+              class="certificate-art obsidian-art"
+              id="certificateArt"
+            ></div>
+
+
+            <div class="certificate-content">
+
+              <div class="eyebrow">
+                CERTIFICATE OF OWNERSHIP
+              </div>
+
+              <h2 id="certificateTitle">
+                Obsidian
+              </h2>
+
+
+              <div
+                class="certificate-edition"
+                id="certificateEdition"
+              >
+                EDITION 001 / 100
+              </div>
+
+
+              <div class="certificate-details">
+
+                <div>
+
+                  <span>
+                    OWNER
+                  </span>
+
+                  <strong id="certificateOwner">
+                    —
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    CERTIFICATE
+                  </span>
+
+                  <strong id="certificateId">
+                    —
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    PURCHASED
+                  </span>
+
+                  <strong id="certificateDate">
+                    —
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <div class="authenticity">
+
+                <strong>
+                  AUTHENTIC WALPAP COLLECTIBLE
+                </strong>
+
+                <span>
+                  Verified digital ownership
+                </span>
+
+              </div>
+
+
+              <div class="certificate-footer">
+
+                <span>
+                  WALPAP
+                </span>
+
+                <span>
+                  DIGITAL ARTIFACT
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="certificate-actions">
+
+            <button
+              class="primary-btn"
+              id="downloadCertificateBtn"
+            >
+              SAVE CERTIFICATE
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </section>
+
+
+    <!-- ===================================================
+         MARKETPLACE
+    ==================================================== -->
+
+    <section
+      class="page"
+      id="page-marketplace"
+      data-page="marketplace"
+    >
+
+      <section class="section">
+
+        <div class="eyebrow">
+          SECONDARY MARKET
+        </div>
+
+        <h1>
+          Collector to collector.
+        </h1>
+
+        <p>
+          Existing editions may be offered by their owners.
+        </p>
+
+
+        <div
+          class="market-list"
+          id="marketList"
+        >
+
+          <div class="fine-print">
+            No listings yet.
+          </div>
+
+        </div>
+
+
+        <div class="market-disclaimer">
+
+          Marketplace listings are created by collectors.
+          WALPAP records the transaction history of
+          eligible digital collectibles.
+
+        </div>
+
+      </section>
+
+    </section>
+
+
+    <!-- ===================================================
+         PROFILE
+    ==================================================== -->
+
+    <section
+      class="page"
+      id="page-profile"
+      data-page="profile"
+    >
+
+      <section class="section">
+
+        <div class="profile-header">
+
+          <div class="profile-avatar">
+            W
+          </div>
+
+
+          <div>
+
+            <div class="eyebrow">
+              COLLECTOR
+            </div>
+
+            <h1 id="profileName">
+              Guest
+            </h1>
+
+            <div
+              class="tier-badge"
+              id="profileTier"
+            >
+              COLLECTOR
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="profile-stats">
+
+          <div>
+
+            <strong id="profileOwned">
+              0
+            </strong>
+
+            <span>
+              Owned
+            </span>
+
+          </div>
+
+
+          <div>
+
+            <strong id="profileSpent">
+              Rp0
+            </strong>
+
+            <span>
+              Collected
+            </span>
+
+          </div>
+
+
+          <div>
+
+            <strong id="profileBalance">
+              Rp0
+            </strong>
+
+            <span>
+              Balance
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <div class="completion-card">
+
+          <div>
+
+            <div class="eyebrow">
+              COLLECTION STATUS
+            </div>
+
+            <h3 id="profileStatus">
+              Start your collection.
+            </h3>
+
+          </div>
+
+          <div
+            class="progress"
+          >
+
+            <div
+              id="profileProgress"
+              style="width:0%"
+            ></div>
+
+          </div>
+
+        </div>
+
+
+        <div class="profile-section">
+
+          <div class="eyebrow">
+            ACHIEVEMENTS
+          </div>
+
+          <h2>
+            Collector badges
+          </h2>
+
+
+          <div class="badge-grid">
+
+            <div
+              class="badge"
+              id="badgeFirst"
+            >
+              <strong>
+                01
+              </strong>
+
+              <span>
+                First Edition
+              </span>
+
+            </div>
+
+
+            <div
+              class="badge"
+              id="badgeGenesis"
+            >
+              <strong>
+                G
+              </strong>
+
+              <span>
+                Genesis
+              </span>
+
+            </div>
+
+
+            <div
+              class="badge"
+              id="badgeCollector"
+            >
+              <strong>
+                C
+              </strong>
+
+              <span>
+                Collector
+              </span>
+
+            </div>
+
+
+            <div
+              class="badge"
+              id="badgeElite"
+            >
+              <strong>
+                E
+              </strong>
+
+              <span>
+                Elite
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="profile-section">
+
+          <div class="eyebrow">
+            ACCOUNT
+          </div>
+
+
+          <button
+            class="secondary-btn large"
+            id="loginBtn"
+          >
+            SIGN IN
+          </button>
+
+
+          <button
+            class="outline-light-btn large"
+            id="logoutBtn"
+            style="display:none"
+          >
+            SIGN OUT
+          </button>
+
+        </div>
+
+      </section>
+
+    </section>
+
+  </main>
+
+
+  <!-- =====================================================
+       BOTTOM NAV
+  ====================================================== -->
+
+  <nav class="bottom-nav">
+
+    <button
+      class="bottom-nav-item active"
+      data-page="home"
+    >
+      <span>
+        ◇
+      </span>
+
+      <small>
+        Home
+      </small>
+
+    </button>
+
+
+    <button
+      class="bottom-nav-item"
+      data-page="drops"
+    >
+
+      <span>
+        ◆
+      </span>
+
+      <small>
+        Drops
+      </small>
+
+    </button>
+
+
+    <button
+      class="bottom-nav-item"
+      data-page="explore"
+    >
+
+      <span>
+        ○
+      </span>
+
+      <small>
+        Explore
+      </small>
+
+    </button>
+
+
+    <button
+      class="bottom-nav-item"
+      data-page="vault"
+    >
+
+      <span>
+        □
+      </span>
+
+      <small>
+        Vault
+      </small>
+
+    </button>
+
+
+    <button
+      class="bottom-nav-item"
+      data-page="profile"
+    >
+
+      <span>
+        ◉
+      </span>
+
+      <small>
+        Profile
+      </small>
+
+    </button>
+
+  </nav>
+
+
+  <!-- =====================================================
+       MODAL
+  ====================================================== -->
+
+  <div
+    class="modal"
+    id="authModal"
+  >
+
+    <div
+      class="modal-backdrop"
+      data-close-modal
+    ></div>
+
+
+    <div class="modal-box">
+
+      <button
+        class="icon-btn modal-close"
+        data-close-modal
+      >
+        ×
+      </button>
+
+
+      <div class="eyebrow">
+        WALPAP ACCOUNT
+      </div>
+
+      <h2>
+        Enter the Vault.
+      </h2>
+
+      <p>
+        Sign in to collect, own and manage
+        your WALPAP editions.
+      </p>
+
+
+      <button
+        class="primary-btn large"
+        id="googleLoginBtn"
+      >
+        CONTINUE WITH GOOGLE
+      </button>
+
+
+      <button
+        class="secondary-btn large"
+        id="anonymousLoginBtn"
+      >
+        CONTINUE AS GUEST
+      </button>
+
+
+      <div class="fine-print">
+        Your collection is linked to your
+        WALPAP account.
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       TOAST
+  ====================================================== -->
+
+  <div
+    class="toast"
+    id="toast"
+  >
+    <span id="toastMessage">
+      Done
+    </span>
+  </div>
+
+</div>
+
+
+<!-- =======================================================
+     FIREBASE / APP
+======================================================== -->
+
+<script type="module">
+
+  /*
+   * Firebase SDK
+   *
+   * Ganti firebaseConfig di app.js
+   * dengan konfigurasi Firebase milik Anda.
+   */
+
+  import {
+    initializeApp
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+  import {
+    getAuth,
+    onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signInAnonymously,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+  import {
+    getFirestore
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+  import {
+    getStorage
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js";
+
+
+  /*
+   * ========================================================
+   * FIREBASE CONFIG
+   * ========================================================
+   *
+   * MASUKKAN CONFIG FIREBASE ANDA DI SINI.
+   */
+
+  const firebaseConfig = {
+
+    apiKey: "MASUKKAN_API_KEY",
+
+    authDomain:
+      "PROJECT_ID.firebaseapp.com",
+
+    projectId:
+      "PROJECT_ID",
+
+    storageBucket:
+      "PROJECT_ID.firebasestorage.app",
+
+    messagingSenderId:
+      "MESSAGING_SENDER_ID",
+
+    appId:
+      "APP_ID"
+
+  };
+
+
+  const firebaseApp =
+    initializeApp(firebaseConfig);
+
+
+  const auth =
+    getAuth(firebaseApp);
+
+
+  const db =
+    getFirestore(firebaseApp);
+
+
+  const storage =
+    getStorage(firebaseApp);
+
+
+  /*
+   * Make Firebase instances available
+   * to app.js
+   */
+
+  window.WALPAP_FIREBASE = {
+
+    app: firebaseApp,
+
+    auth,
+
+    db,
+
+    storage
+
+  };
+
+
+  /*
+   * Authentication helpers
+   */
+
+  window.WALPAP_AUTH = {
+
+    GoogleAuthProvider,
+
+    signInWithPopup,
+
+    signInAnonymously,
+
+    signOut,
+
+    onAuthStateChanged
+
+  };
+
+</script>
+
+
+<script type="module" src="app.js"></script>
+
+</body>
+  </html>
