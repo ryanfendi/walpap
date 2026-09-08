@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+  >
+
+  <title>WALPAP — Admin</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #050505;
+      color: #f5f5f5;
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      min-height: 100vh;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* =========================
+       LOGIN
+    ========================= */
+
+    .login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(
+          circle at 50% 20%,
+          rgba(255,255,255,.07),
+          transparent 35%
+        ),
+        #050505;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      padding: 40px 28px;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 24px;
+      background: rgba(15,15,15,.95);
+      text-align: center;
+      box-shadow: 0 30px 100px rgba(0,0,0,.5);
+    }
+
+    .logo {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      margin-bottom: 10px;
+    }
+
+    .login-subtitle {
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    .google-btn {
+      width: 100%;
+      height: 52px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      background: #fff;
+      color: #111;
+      font-weight: 700;
+      transition: .2s;
+    }
+
+    .google-btn:hover {
+      transform: translateY(-1px);
+      background: #eee;
+    }
+
+    .login-error {
+      margin-top: 16px;
+      color: #ff6b6b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* =========================
+       HEADER
+    ========================= */
+
+    .admin-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(5,5,5,.92);
+      backdrop-filter: blur(20px);
+    }
+
+    .header-logo {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: .14em;
+    }
+
+    .admin-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .admin-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #222;
+    }
+
+    .admin-user-name {
+      font-size: 13px;
+      color: #ccc;
+    }
+
+    .logout-btn {
+      border: 1px solid rgba(255,255,255,.12);
+      background: transparent;
+      color: #aaa;
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+
+    .logout-btn:hover {
+      color: #fff;
+      border-color: rgba(255,255,255,.25);
+    }
+
+    /* =========================
+       MAIN
+    ========================= */
+
+    .container {
+      width: 100%;
+      max-width: 1250px;
+      margin: auto;
+      padding: 30px 20px 80px;
+    }
+
+    .page-title {
+      margin-bottom: 26px;
+    }
+
+    .page-title h1 {
+      font-size: clamp(28px, 5vw, 42px);
+      letter-spacing: -.03em;
+      margin-bottom: 8px;
+    }
+
+    .page-title p {
+      color: #777;
+      font-size: 14px;
+    }
+
+    /* =========================
+       STATS
+    ========================= */
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      padding: 22px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      background: #0d0d0d;
+    }
+
+    .stat-label {
+      color: #777;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-size: 25px;
+      font-weight: 750;
+    }
+
+    /* =========================
+       TOOLBAR
+    ========================= */
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .primary-btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 18px;
+      background: #fff;
+      color: #000;
+      font-weight: 700;
+    }
+
+    .primary-btn:hover {
+      background: #ddd;
+    }
+
+    .secondary-btn {
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px;
+      padding: 11px 16px;
+      background: transparent;
+      color: #fff;
+    }
+
+    .danger-btn {
+      border: 1px solid rgba(255,70,70,.25);
+      border-radius: 10px;
+      padding: 9px 12px;
+      background: rgba(255,60,60,.06);
+      color: #ff7373;
+    }
+
+    /* =========================
+       WALLPAPER LIST
+    ========================= */
+
+    .wallpaper-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .wallpaper-card {
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      background: #0d0d0d;
+    }
+
+    .wallpaper-image {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      display: block;
+      background: #181818;
+    }
+
+    .wallpaper-content {
+      padding: 18px;
+    }
+
+    .wallpaper-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .wallpaper-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .wallpaper-subtitle {
+      color: #777;
+      font-size: 12px;
+    }
+
+    .status {
+      height: fit-content;
+      padding: 5px 8px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.07);
+      color: #bbb;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .wallpaper-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .info-item {
+      padding: 11px;
+      border-radius: 10px;
+      background: #151515;
+    }
+
+    .info-label {
+      color: #666;
+      font-size: 10px;
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .card-actions button {
+      flex: 1;
+    }
+
+    /* =========================
+       FORM
+    ========================= */
+
+    .form-section {
+      margin-top: 30px;
+      padding: 24px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 22px;
+      background: #0b0b0b;
+    }
+
+    .form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .form-header h2 {
+      font-size: 21px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      color: #aaa;
+      font-size: 12px;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 11px;
+      padding: 13px 14px;
+      outline: none;
+      background: #151515;
+      color: #fff;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      border-color: rgba(255,255,255,.35);
+    }
+
+    .field textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .help {
+      color: #666;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .image-preview-wrap {
+      margin-top: 4px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #111;
+    }
+
+    .image-preview {
+      width: 100%;
+      max-height: 420px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .preview-empty {
+      padding: 45px 20px;
+      text-align: center;
+      color: #555;
+      font-size: 13px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    /* =========================
+       TOAST
+    ========================= */
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 25px;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: .25s;
+      min-width: 240px;
+      max-width: calc(100% - 40px);
+      padding: 13px 16px;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 12px;
+      background: #171717;
+      color: #fff;
+      text-align: center;
+      font-size: 13px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.5);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* =========================
+       EMPTY
+    ========================= */
+
+    .empty {
+      padding: 50px 20px;
+      text-align: center;
+      border: 1px dashed rgba(255,255,255,.1);
+      border-radius: 18px;
+      color: #666;
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 800px) {
+
+      .admin-header {
+        padding: 0 14px;
+      }
+
+      .admin-user-name {
+        display: none;
+      }
+
+      .logout-btn {
+        padding: 8px 10px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .wallpaper-list {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field.full {
+        grid-column: auto;
+      }
+    }
+
+    @media (max-width: 480px) {
+
+      .container {
+        padding: 24px 14px 60px;
+      }
+
+      .stats-grid {
+        gap: 9px;
+      }
+
+      .stat-card {
+        padding: 15px;
+      }
+
+      .stat-value {
+        font-size: 19px;
+      }
+
+      .toolbar {
+        align-items: flex-start;
+      }
+
+      .primary-btn {
+        padding: 10px 12px;
+        font-size: 12px;
+      }
+
+      .form-section {
+        padding: 17px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================
+       LOGIN
+  ========================== -->
+
+  <section id="loginScreen" class="login-screen">
+
+    <div class="login-card">
+
+      <div class="logo">WALPAP</div>
+
+      <div class="login-subtitle">
+        Premium Digital Wallpaper Marketplace
+        <br>
+        Admin Panel
+      </div>
+
+      <button
+        id="googleLoginBtn"
+        class="google-btn"
+        type="button"
+      >
+        Continue with Google
+      </button>
+
+      <div
+        id="loginError"
+        class="login-error hidden"
+      ></div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       ADMIN APP
+  ========================== -->
+
+  <div id="adminApp" class="hidden">
+
+    <header class="admin-header">
+
+      <div class="header-logo">
+        WALPAP
+      </div>
+
+      <div class="admin-user">
+
+        <img
+          id="adminAvatar"
+          class="admin-avatar"
+          src=""
+          alt="Admin"
+        >
+
+        <div
+          id="adminUserName"
+          class="admin-user-name"
+        >
+          Admin
+        </div>
+
+        <button
+          id="logoutBtn"
+          class="logout-btn"
+          type="button"
+        >
+          Logout
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <main class="container">
+
+      <!-- PAGE TITLE -->
+
+      <div class="page-title">
+
+        <h1>Dashboard</h1>
+
+        <p>
+          Kelola koleksi premium WALPAP.
+        </p>
+
+      </div>
+
+
+      <!-- =========================
+           STATS
+      ========================== -->
+
+      <section class="stats-grid">
+
+        <div class="stat-card">
+
+          <div class="stat-label">
+            Total Revenue
+          </div>
+
+          <div
+            id="statRevenue"
+            class="stat-value"
+          >
+            Rp0
+          </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <div class="stat-label">
+            Collectors
+          </div>
+
+          <div
+            id="statCollectors"
+            class="stat-value"
+          >
+            0
+          </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <div class="stat-label">
+            Wallpapers
+          </div>
+
+          <div
+            id="statWallpapers"
+            class="stat-value"
+          >
+            0
+          </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <div class="stat-label">
+            Editions Sold
+          </div>
+
+          <div
+            id="statSold"
+            class="stat-value"
+          >
+            0
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           WALLPAPERS
+      ========================== -->
+
+      <section>
+
+        <div class="toolbar">
+
+          <div class="section-title">
+            Wallpapers
+          </div>
+
+          <button
+            id="newWallpaperBtn"
+            class="primary-btn"
+            type="button"
+          >
+            + New Wallpaper
+          </button>
+
+        </div>
+
+
+        <div
+          id="wallpaperList"
+          class="wallpaper-list"
+        ></div>
+
+      </section>
+
+
+      <!-- =========================
+           FORM
+      ========================== -->
+
+      <section
+        id="wallpaperFormSection"
+        class="form-section hidden"
+      >
+
+        <div class="form-header">
+
+          <h2 id="formTitle">
+            New Wallpaper
+          </h2>
+
+          <button
+            id="cancelFormBtn"
+            class="secondary-btn"
+            type="button"
+          >
+            Cancel
+          </button>
+
+        </div>
+
+
+        <form id="wallpaperForm">
+
+          <div class="form-grid">
+
+
+            <!-- TITLE -->
+
+            <div class="field">
+
+              <label for="title">
+                Title
+              </label>
+
+              <input
+                id="title"
+                type="text"
+                required
+                maxlength="100"
+                placeholder="Obsidian"
+              >
+
+            </div>
+
+
+            <!-- SUBTITLE -->
+
+            <div class="field">
+
+              <label for="subtitle">
+                Subtitle
+              </label>
+
+              <input
+                id="subtitle"
+                type="text"
+                maxlength="150"
+                placeholder="Darkness, perfected."
+              >
+
+            </div>
+
+
+            <!-- CATEGORY -->
+
+            <div class="field">
+
+              <label for="category">
+                Category
+              </label>
+
+              <input
+                id="category"
+                type="text"
+                maxlength="50"
+                placeholder="Abstract"
+              >
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="field">
+
+              <label for="status">
+                Status
+              </label>
+
+              <select id="status">
+
+                <option value="upcoming">
+                  Upcoming
+                </option>
+
+                <option value="active">
+                  Active
+                </option>
+
+                <option value="soldout">
+                  Sold Out
+                </option>
+
+                <option value="draft">
+                  Draft
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <!-- PRICE -->
+
+            <div class="field">
+
+              <label for="price">
+                Price / Starting Price
+              </label>
+
+              <input
+                id="price"
+                type="number"
+                min="0"
+                step="1000"
+                required
+                placeholder="1000000"
+              >
+
+              <div class="help">
+                Contoh: 1000000 = Rp1.000.000
+              </div>
+
+            </div>
+
+
+            <!-- EDITION -->
+
+            <div class="field">
+
+              <label for="editionTotal">
+                Total Editions
+              </label>
+
+              <input
+                id="editionTotal"
+                type="number"
+                min="1"
+                max="100000"
+                required
+                placeholder="100"
+              >
+
+            </div>
+
+
+            <!-- RELEASE -->
+
+            <div class="field">
+
+              <label for="releaseAt">
+                Release Date & Time
+              </label>
+
+              <input
+                id="releaseAt"
+                type="datetime-local"
+              >
+
+            </div>
+
+
+            <!-- IMAGE URL -->
+
+            <div class="field">
+
+              <label for="imageUrl">
+                Artwork Image URL
+              </label>
+
+              <input
+                id="imageUrl"
+                type="url"
+                placeholder="https://..."
+                autocomplete="off"
+              >
+
+              <div class="help">
+                Tidak menggunakan Firebase Storage.
+                Gunakan URL gambar publik dari GitHub Pages,
+                Cloudinary, CDN, atau image hosting lainnya.
+              </div>
+
+            </div>
+
+
+            <!-- IMAGE PREVIEW -->
+
+            <div class="field full">
+
+              <label>
+                Artwork Preview
+              </label>
+
+              <div class="image-preview-wrap">
+
+                <img
+                  id="imagePreview"
+                  class="image-preview hidden"
+                  src=""
+                  alt="Preview"
+                >
+
+                <div
+                  id="previewEmpty"
+                  class="preview-empty"
+                >
+                  Masukkan URL gambar untuk melihat preview.
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- DESCRIPTION -->
+
+            <div class="field full">
+
+              <label for="description">
+                Description
+              </label>
+
+              <textarea
+                id="description"
+                placeholder="Cerita dan deskripsi artwork..."
+              ></textarea>
+
+            </div>
+
+          </div>
+
+
+          <div class="form-actions">
+
+            <button
+              id="saveWallpaperBtn"
+              class="primary-btn"
+              type="submit"
+            >
+              Save Wallpaper
+            </button>
+
+            <button
+              id="cancelFormBtn2"
+              class="secondary-btn"
+              type="button"
+            >
+              Cancel
+            </button>
+
+          </div>
+
+        </form>
+
+      </section>
+
+    </main>
+
+  </div>
+
+
+  <!-- TOAST -->
+
+  <div
+    id="toast"
+    class="toast"
+  >
+    <span id="toastMessage"></span>
+  </div>
+
+
+  <!-- =========================
+       FIREBASE
+       NO STORAGE
+  ========================== -->
+
+  <script type="module">
+
+    import {
+      initializeApp
+    } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+    import {
+      getFirestore
+    } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+
+    /*
+    ========================================================
+    FIREBASE CONFIG
+    ========================================================
+
+    GANTI DENGAN CONFIG FIREBASE PROJECT ANDA
+    ========================================================
+    */
+
+    const firebaseConfig = {
+
+      apiKey: "AIzaSyAr6hebgw-T4Tr3gWZEXwJ1PycC8mVQt4k",
+
+      authDomain:
+        "walpape.firebaseapp.com",
+
+      projectId:
+        "walpape",
+
+      appId:
+        "1:131497116491:web:ae4a406c0fc50b6f23dece"
+
+    };
+
+
+    const app =
+      initializeApp(firebaseConfig);
+
+    const auth =
+      getAuth(app);
+
+    const db =
+      getFirestore(app);
+
+    const provider =
+      new GoogleAuthProvider();
+
+
+    /*
+    ========================================================
+    GLOBAL FIREBASE OBJECT
+
+    TIDAK ADA STORAGE
+    ========================================================
+    */
+
+    window.WALPAP_ADMIN_FIREBASE = {
+
+      app,
+
+      auth,
+
+      db,
+
+      provider,
+
+      signInWithPopup,
+
+      signOut,
+
+      onAuthStateChanged
+
+    };
+
+
+    /*
+    LOAD ADMIN JS
+    */
+
+    const script =
+      document.createElement("script");
+
+    script.type = "module";
+
+    script.src = "./admin.js";
+
+    document.body.appendChild(script);
+
+  </script>
+
+</body>
+</html>
